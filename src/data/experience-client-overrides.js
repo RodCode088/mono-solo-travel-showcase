@@ -1,0 +1,258 @@
+// Change request del cliente "From Panama City" (Notion, 2026-08-07 +
+// aclaraciones 2026-08-09). El copy que dio el cliente es VERBATIM y no se
+// debe reformular.
+//
+// El cliente escribio cada bloque en Markdown con un parrafo gancho mas
+// bullets etiquetados (Duration / Not Included / Included / Recommended to
+// Bring) y un itinerario numerado. El sitio no renderiza Markdown: la pagina
+// de detalle de experiencia ya tiene bloques dedicados para exactamente esos
+// campos (fullDescription / duration / notIncluded / included / requirements
+// / itinerary), asi que cada etiqueta se mapea al campo al que ya pertenece
+// en vez de volcar Markdown crudo en la descripcion. Las etiquetas que no
+// tienen campo propio (When, Pickup Time, desglose de precio, "Good to
+// Know") se agregan a fullDescription como parrafos simples.
+//
+// Key: numero de orden de la carpeta, igual que spanishTitlesByOrder y el id
+// "e-XXX".
+
+/** Ordenes eliminados por completo del catalogo (el cliente quito el producto). */
+export const removedOrders = new Set([25]); // Primitive Spearfishing fue eliminado por el cliente.
+// El 24 (Bar Hopping) estaba antes aca porque no tenia detalles aprobados. El
+// cliente lo desbloqueo el 2026-08-18 ("crea una experiencia que se llame 'bar
+// hoping'", "usa ai pa crear una descripcion - bar hopping en Casco Antiguo"),
+// asi que ahora vive en authoredExperiences mas abajo con copy escrito por IA.
+
+/**
+ * Ordenes que son productos de Colon y no deben aparecer bajo "From Panama
+ * City". Conservan sus registros y rutas de detalle; solo se les quita esa
+ * etiqueta de destino. Registrados como su propia categoria plana ("Colón
+ * & Sister Moon Experiences", reorg de categorias 2026-08-10) en categoryMeta
+ * y catalogGroupsByDestination, asi que aparecen como provincia/categoria
+ * independiente en el filtro del catalogo en vez de bajo Panama City.
+ */
+export const COLON_DESTINATION = "Colón";
+export const COLON_CATEGORY = "Colón & Sister Moon Experiences";
+export const colonOrders = new Set([10, 19, 29, 35, 37]);
+
+/** Precio temporal puesto por el cliente; lo va a revisar despues. */
+export const priceOverridesByOrder = {
+  36: 80, // Surf Day Experience: The City Escape
+};
+
+/**
+ * Overrides de orden de galeria, aplicados despues del orden natural por
+ * defecto. Los valores se comparan contra el nombre de archivo de la imagen.
+ */
+export const imageOrderByOrder = {
+  // Canyon Thrills: las fotos de la cascada van primero, la foto de la roca
+  // del canon va al final. Solo reordena - no se agrega, quita ni reemplaza
+  // ninguna imagen.
+  8: ["754a9aa1", "c65f2915", "DSC00023", "IMG_8817", "5f971ee8"],
+  // Caribbean Island Day Escape: el cliente eligio la foto del Sister Moon
+  // Hotel como portada (2026-08-10). Todo lo demas conserva su orden relativo.
+  9: ["3-sister-moon-hotel"],
+};
+
+/**
+ * Client-supplied replacement content, VERBATIM.
+ * Any field present here wins over the parsed source .txt content.
+ */
+export const clientContentByOrder = {
+  // 1.3 Caribbean Island Day Escape - REPLACE DESCRIPTION
+  9: {
+    fullDescription:
+      "Trade the city skyscraper views for Caribbean salt air. We're taking you on an overland journey to Colón for historical pirate territory, specialty coffee, and a day relaxing at our favorite island hideaway.",
+    duration: 9, // "Full Day (~8 to 9 Hours)"
+    notIncluded: [
+      "Personal snacks/drinks outside lunch",
+      "alcohol",
+      "optional snorkel gear rental ($5 upgrade)",
+    ],
+    included: [
+      "Roundtrip overland & boat transport",
+      "history/coffee stop",
+      "full access to Sister Moon Hotel facilities (saltwater pool, meditation space, oceanfront decks, private clean showers/restrooms)",
+      "and a freshly cooked meal LUNCH by a local chef",
+    ],
+    requirements: [
+      "Swimwear",
+      "towel",
+      "change of dry clothes",
+      "sunscreen",
+      "bug spray",
+      "cash for extra drinks/souvenirs",
+      "and your camera",
+    ],
+    itinerary: [
+      "Early Pickup in Panama City: Jump in the rig for a scenic 1.5-hour drive through tropical landscapes heading north to Colón.",
+      "Pirate History & Coffee Stop (Portobelo): Quick pitstop in historic Portobelo—former stronghold for Spanish gold and favorite playground of pirates like Henry Morgan. We'll grab local snacks (empanadas/plantintart) and Panama specialty coffee.",
+      "Boat Crossing from La Guaira: A quick 5-minute boat ride across turquoise waters drops us right on Isla Grande.",
+      "Sister Moon Basecamp & Island Chill: Settle in at Sister Moon Hotel, our private sanctuary for the day. Dip in the saltwater pool, hit the meditation space, use clean showers, and eat an impeccable lunch cooked by a local chef.",
+      "Explore or Unwind: Hike up to the island's historic lighthouse for panoramic views and parrot watching, or just catch a tan by the water.",
+      "3:00 PM Boat & Drive Back: We jump back on the boat and head back overland, landing you in Panama City right in time for sunset.",
+    ],
+  },
+
+  // 4.1 "FREE" Casco Walking Tour - RENAME + REPLACE DESCRIPTION
+  11: {
+    title: "“FREE” Casco Walking Tour",
+    fullDescription: [
+      "The most authentic way to experience the heart of Panama—no dry history lectures, no tourist traps. Just high-energy vibes, cobblestone backstreets, hidden spots, and the real stories behind Casco Viejo.",
+      "When: Every single day of the week!\nPickup Time: 9:30 AM – 9:45 AM (Directly from your hostel/hotel)",
+      "Pricing & Logistics Breakdown\nTo Join ($5.00 Total): $2.00 Reservation Fee + $3.00 Mandatory Transport Pickup.\nOptional Social Lunch Deal ($12.00): Covers your Metro transport, a full traditional meal (Fonda style), and a specialty coffee on Via Argentina.",
+      "Why Tip-Based? This keeps our guides sharp, the energy high, and gives you complete freedom to value the experience based on your vibe.",
+    ].join("\n\n"),
+    duration: 3, // "~3 Hours (Walking Tour + Optional Social Lunch)"
+    notIncluded: [
+      "Guide tip (tip-based model—pay what you feel it was worth at the end)",
+    ],
+    included: [
+      "Direct hostel pickup",
+      "guided walking route",
+      "and skyline viewpoints",
+    ],
+    requirements: [
+      "Comfortable walking shoes for cobblestones",
+      "cash for guide tips/lunch",
+      "water",
+      "and a hat or sunglasses",
+    ],
+    itinerary: [
+      "9:30 AM – Direct Pickup: We pick you up right from your accommodation—no need to figure out public transport or maps.",
+      "Casco Viejo Exploration: Dive into the backstreets, colonial ruins, iconic plazas, and local contrast of Casco. Get the best skyline photo ops and deep-cut history from our crew.",
+      "12:00 PM – Social Daily Lunch Transition (Optional): We keep the crew together and head over to the Via Argentina area for a massive, traditional Panamanian meal.",
+    ],
+  },
+
+  // 1.7 Kuna Yala / San Blas Overnight & Beyond - RENAME (VERBATIM)
+  26: { title: "Kuna Yala / San Blas Overnight & Beyond" },
+
+  // 1.7 Kuna Yala / San Blas Day Trip - RENAME (VERBATIM)
+  27: { title: "Kuna Yala / San Blas Day Trip" },
+
+  // 6.1 Toucan Sightseeing - quita el parentesis del titulo
+  43: { title: "Toucan Sightseeing & Cold Mountains of the City" },
+};
+
+/**
+ * Experiencias que no existian en el export de Cuanto y se redactaron a
+ * partir del brief del cliente. Se arman con la misma forma que las
+ * parseadas.
+ *
+ * BLOQUEADO (B3): precio, capacidad, disponibilidad y flujo de reserva
+ * todavia faltan para ambas. basePrice se queda en 0 y no se crea fila de
+ * disponibilidad, asi que ninguna es reservable hasta que el cliente de el
+ * dato comercial.
+ */
+export const authoredExperiences = [
+  {
+    order: 23,
+    destination: "Panama City",
+    category: "Extreme Experiences",
+    title: "Shooting Range Experience & Sunset Chill",
+    shortDescription:
+      "Test your trigger finger right under the shadow of the iconic Bridge of the Americas, then cool down at Veracruz Beach for sunset.",
+    fullDescription: [
+      "Test your trigger finger right under the shadow of the iconic Bridge of the Americas. After burning through brass at the range, we cool down with a short 20-minute scenic drive to Veracruz Beach to catch the sunset with a cold drink in hand. High-octane precision meets beachside relaxation.",
+      "Good to Know: Weekend availability only. Bring your squad—groups unlock discounted rates!",
+    ].join("\n\n"),
+    duration: 5, // "~4 to 5 Hours"
+    notIncluded: [
+      "Personal drinks/meals at the beach",
+      "extra ammo rounds outside your selected package",
+    ],
+    included: [
+      "Roundtrip overland transport",
+      "shooting range entry fee",
+      "safety gear (ear/eye protection)",
+      "certified instructor",
+      "firearms",
+      "target paper",
+      "standard ammo package",
+      "and transport to Veracruz Beach for sunset",
+    ],
+    requirements: [
+      "Valid physical ID or passport (mandatory for range entry)",
+      "closed-toe shoes (mandatory)",
+      "comfortable clothes",
+      "sunglasses",
+      "and cash/card for beach drinks or snacks",
+    ],
+    itinerary: [
+      "Pickup in Panama City: We pick you up in our rig and cross over the Canal entrance, heading towards the iconic Bridge of the Americas.",
+      "Safety Briefing & Shooting Session: Arrive at the range location under the bridge. Get suited up in safety gear, go over the range rules with certified instructors, and lock & load for your target shooting session.",
+      "Scenic Coastal Drive to Veracruz: Pack up the gear and take a quick 20-minute coastal drive down to Veracruz Beach.",
+      "Veracruz Beach Sunset Chill: Unwind after the range rush, grab a drink or meal by the ocean, and watch the sun dip below the horizon over the Pacific.",
+      "Return Transfer: Hop back in the vehicle for a quick drop-off back in Panama City.",
+    ],
+  },
+  {
+    // 4.1 Bar Hopping - EXPERIENCIA NUEVA (Nightlife).
+    // El cliente pidio el producto por nombre y autorizo explicitamente copy
+    // escrito por IA ("usa ai pa crear una descripcion - bar hopping en Casco
+    // Antiguo"), asi que a diferencia de cualquier otra entrada de este
+    // archivo el texto de abajo NO es verbatim del cliente y se puede
+    // reformular una vez que lo revise.
+    order: 24,
+    destination: "Panama City",
+    category: "Nightlife",
+    slug: "bar-hopping",
+    sourceFolder: "24 - Bar Hopping",
+    title: "Bar Hopping",
+    shortDescription:
+      "Casco Antiguo after dark with a crew instead of a map: rooftop skyline views, a hidden speakeasy and the backstreet spots that never make the guidebooks.",
+    fullDescription: [
+      "Casco Antiguo does not really wake up until the sun goes down. The colonial facades light up, the rooftops fill, and behind unmarked doors there are bars you would walk past a hundred times without noticing. That is exactly where we are going.",
+      "This is not a wristband pub crawl with a shot list. It is a small crew, a local host who knows which door to knock on, and a route that starts on a rooftop with the whole Panama City skyline in front of you and drops down into the cobblestone backstreets where the real nightlife lives.",
+      "Good to Know: 18+ only and every venue checks ID. The route flexes with the night - if a spot is dead, we move. Weekends hit hardest, but we also run midweek for smaller, calmer crews.",
+    ].join("\n\n"),
+    duration: 5,
+    included: [
+      "Anfitrion local y ruta completa por Casco Antiguo",
+      "Bebida de bienvenida en la primera parada",
+      "Parada en rooftop con vista al skyline",
+      "Entrada coordinada en los locales que lo permiten",
+      "Coordinacion del grupo por WhatsApp antes de salir",
+    ],
+    notIncluded: [
+      "Bebidas adicionales a la de bienvenida",
+      "Comida y snacks de la noche",
+      "Cover de los locales que lo cobren",
+      "Taxi o transporte de regreso a tu alojamiento",
+      "Propinas para los bartenders",
+    ],
+    requirements: [
+      "Documento de identidad o pasaporte fisico (obligatorio, lo piden en cada local)",
+      "Ropa smart casual y zapatos cerrados: algunos rooftops tienen codigo de vestimenta",
+      "Efectivo y tarjeta para las bebidas",
+      "Telefono cargado para fotos y el grupo de WhatsApp",
+      "Ser mayor de 18 anos",
+    ],
+    itinerary: [
+      "Meeting Point in Casco Antiguo: We link up on a plaza in the old quarter, do quick intros so nobody is a stranger by the second bar, and set the pace for the night.",
+      "Stop 1 - Welcome Drink: We start local. A classic Panamanian cocktail or a cold Balboa to get the crew talking before we move.",
+      "Stop 2 - Rooftop & Skyline: Up we go. The full Panama City skyline lit up across the bay with the colonial rooftops underneath. The best photo of your trip happens here.",
+      "Stop 3 - The Hidden Door: A speakeasy behind an unmarked entrance. No sign, no queue outside, just the kind of place you only find if someone takes you.",
+      "Stop 4 - Backstreet Local Spot: Off the tourist strip and into where locals actually drink. Cheaper rounds, louder music, better stories.",
+      "Open Ending: Around midnight the route ends. Stay out with whoever is still standing, or grab a ride back - your host will point you to a safe one.",
+    ],
+    spanish: {
+      title: "Bar Hopping",
+      shortDescription:
+        "Casco Antiguo de noche con un grupo en vez de un mapa: rooftops con vista al skyline, un speakeasy escondido y los bares de callejon que no salen en ninguna guia.",
+      fullDescription: [
+        "Casco Antiguo no despierta de verdad hasta que se mete el sol. Las fachadas coloniales se encienden, los rooftops se llenan y detras de puertas sin letrero hay bares por los que pasarias cien veces sin notarlos. Ahi es exactamente donde vamos.",
+        "Esto no es un pub crawl de manilla y lista de shots. Es un grupo pequeno, un anfitrion local que sabe en cual puerta tocar, y una ruta que arranca en un rooftop con todo el skyline de Ciudad de Panama enfrente y baja hasta los callejones empedrados donde vive la noche real.",
+        "Bueno saber: solo mayores de 18 y en cada local piden documento. La ruta se ajusta a como este la noche: si un lugar esta muerto, nos movemos. Los fines de semana pegan mas fuerte, pero tambien salimos entre semana con grupos mas pequenos y tranquilos.",
+      ].join("\n\n"),
+      itinerary: [
+        "Punto de encuentro en Casco Antiguo: nos reunimos en una plaza del casco, presentaciones rapidas para que nadie sea un desconocido en el segundo bar, y arrancamos.",
+        "Parada 1 - Bebida de bienvenida: empezamos local. Un coctel panameno clasico o una Balboa fria para soltar al grupo antes de movernos.",
+        "Parada 2 - Rooftop y skyline: subimos. Todo el skyline de Ciudad de Panama encendido al otro lado de la bahia y los techos coloniales abajo. La mejor foto de tu viaje sale aqui.",
+        "Parada 3 - La puerta escondida: un speakeasy detras de una entrada sin letrero. Sin fila, sin senalizacion, de esos lugares que solo encuentras si alguien te lleva.",
+        "Parada 4 - Bar de callejon: fuera de la zona turistica, donde toman los locales. Rondas mas baratas, musica mas fuerte, mejores historias.",
+        "Cierre abierto: cerca de medianoche termina la ruta. Te quedas con quien siga en pie o te regresas, y tu anfitrion te indica un transporte seguro.",
+      ],
+    },
+  },
+];

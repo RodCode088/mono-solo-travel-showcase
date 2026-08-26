@@ -1,0 +1,1425 @@
+/* =============================================================================
+ * Design pass 2026-08-19
+ *
+ * Sube el nivel visual sin tocar textos, datos ni logica: tipografia real
+ * (Fraunces + Inter, que ya venian cargadas en index.html pero sin usarse),
+ * sistema de botones, superficies con jerarquia, cabecera y pie propios, y una
+ * capa ambiental vectorial (palmeras a la izquierda, carta nautica a la
+ * derecha).
+ *
+ * Se carga despues de react.css y sin @layer a proposito, igual que los pases
+ * anteriores: asi gana sobre @layer components y sobre las utilidades de
+ * Tailwind sin subir especificidad ni reescribir los .jsx.
+ * ========================================================================== */
+
+/* --- 1. Tipografia ------------------------------------------------------- */
+
+body {
+  background: var(--bg);
+  color: var(--ink-2);
+  font-family: var(--sans);
+  font-optical-sizing: auto;
+  letter-spacing: -.006em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Solo el equilibrado de lineas: poner aqui un `color` fijo pisaria por
+ * herencia los titulos blancos sobre foto (colecciones, viajes grupales, CTA),
+ * porque un selector de elemento siempre gana a lo heredado del contenedor. */
+h1, h2, h3, h4 {
+  text-wrap: balance;
+}
+
+/* Ojo: aqui NO va `.font-serif`. Es una utilidad generada por Tailwind, y
+ * colgar CSS a mano de una utilidad ya rompio el pase de vidrio en produccion
+ * una vez: el minificador reescribe y parte esos selectores agrupados, y la
+ * propiedad se pierde solo en el build. Tailwind ya aplica la familia serif por
+ * su cuenta; lo unico que se anadia aqui son los ejes de la variable, que en
+ * Fraunces ya vienen asi por defecto. */
+.ms-home-hero-copy h1,
+.ms-home-section-head h2,
+.ms-home-collection h2,
+.ms-group-trips h2 {
+  font-family: var(--serif);
+  font-variation-settings: "SOFT" 0, "WONK" 0;
+}
+
+.ms-eyebrow {
+  color: var(--gold-2);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+/* Filete corto delante del eyebrow: ancla visual repetida en cada seccion. */
+.ms-eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 22px;
+  height: 1px;
+  margin-right: 10px;
+  background: currentColor;
+  vertical-align: .28em;
+}
+
+label {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+dd {
+  font-weight: 700;
+}
+
+/* --- 2. Botones ---------------------------------------------------------- */
+
+/*
+ * Un solo boton para todo el sitio: tinta con una luz superior muy tenue que le
+ * da cuerpo, texto dorado y filete dorado. Al pasar el cursor se enciende un
+ * halo calido alrededor -el brillo-, en vez del destello que cruzaba la
+ * superficie de lado a lado.
+ */
+.ms-button {
+  position: relative;
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1px solid transparent;
+  border-radius: var(--pill);
+  padding: 0 22px;
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: .012em;
+  white-space: nowrap;
+  transition:
+    background-color .22s ease,
+    border-color .22s ease,
+    box-shadow .28s ease,
+    color .22s ease;
+}
+
+.ms-button:active {
+  transform: translateY(1px);
+}
+
+.ms-button:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+.ms-button > svg {
+  flex: none;
+}
+
+.ms-button:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+.ms-button-primary {
+  background:
+    radial-gradient(130% 190% at 50% -55%, rgba(255, 255, 255, .12) 0%, transparent 62%),
+    var(--ink);
+  border-color: rgba(240, 182, 47, .4);
+  color: var(--gold);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+
+.ms-button-primary:hover {
+  border-color: var(--gold);
+  color: #ffd979;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .14),
+    0 0 0 1px rgba(240, 182, 47, .3),
+    0 10px 30px rgba(240, 182, 47, .26);
+}
+
+/* Inverso para fondos de tinta, donde el boton macizo desapareceria. */
+.ms-button-accent {
+  background:
+    radial-gradient(130% 190% at 50% -55%, rgba(255, 255, 255, .5) 0%, transparent 60%),
+    var(--gold);
+  border-color: rgba(255, 255, 255, .32);
+  color: var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45);
+}
+
+.ms-button-accent:hover {
+  border-color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .6),
+    0 10px 30px rgba(240, 182, 47, .38);
+}
+
+/* Vidrio: el secundario deja pasar lo que tiene detras -foto o fondo- con un
+ * desenfoque, igual que las barras y los paneles. */
+.ms-button-secondary {
+  border-color: rgba(16, 26, 18, .18);
+  background: rgba(255, 253, 247, .42);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  color: var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6);
+}
+
+.ms-button-secondary:hover {
+  border-color: rgba(16, 26, 18, .38);
+  background: rgba(255, 253, 247, .68);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .75),
+    0 8px 24px rgba(16, 26, 18, .1);
+}
+
+/* Sobre foto o tinta el vidrio se invierte. */
+.ms-on-dark .ms-button-secondary,
+.ms-about-cta .ms-button-secondary,
+.ms-home-collection .ms-button-secondary {
+  border-color: rgba(255, 255, 255, .3);
+  background: rgba(255, 255, 255, .12);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2);
+}
+
+.ms-on-dark .ms-button-secondary:hover,
+.ms-about-cta .ms-button-secondary:hover,
+.ms-home-collection .ms-button-secondary:hover {
+  border-color: rgba(255, 255, 255, .62);
+  background: rgba(255, 255, 255, .22);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .32), 0 8px 26px rgba(0, 0, 0, .22);
+}
+
+.ms-button-lg {
+  min-height: 54px;
+  padding: 0 28px;
+  font-size: 15px;
+}
+
+.ms-button-sm {
+  min-height: 38px;
+  padding: 0 16px;
+  font-size: 13px;
+}
+
+/* El acceso de la cabecera es un icono cuadrado hasta sm: hay que repetir aqui
+ * su medida porque el padding base de .ms-button lo ensancharia y romperia el
+ * ancho de la cabecera en movil. */
+.ms-login-button {
+  height: 42px;
+  min-height: 42px;
+  width: 42px;
+  padding: 0;
+}
+
+@media (min-width: 640px) {
+  .ms-login-button {
+    width: auto;
+    padding: 0 18px;
+  }
+}
+
+/* --- 3. Capa ambiental (palmeras + carta nautica) ------------------------ */
+
+.ms-scenery {
+  --ms-mx: 0;
+  --ms-my: 0;
+  --ms-sy: 0;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ms-scenery-side {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  width: clamp(190px, 18vw, 320px);
+}
+
+/* Mascara de desvanecido hacia el centro: el decorado nunca compite con el
+ * texto de la columna de contenido, por ancha que sea la pantalla. */
+.ms-scenery-left {
+  left: 0;
+  -webkit-mask-image: linear-gradient(90deg, #000 0 34%, transparent 96%);
+  mask-image: linear-gradient(90deg, #000 0 34%, transparent 96%);
+}
+
+.ms-scenery-right {
+  right: 0;
+  -webkit-mask-image: linear-gradient(270deg, #000 0 34%, transparent 96%);
+  mask-image: linear-gradient(270deg, #000 0 34%, transparent 96%);
+}
+
+/* El tope de altura fija la escala del dibujo: sin el, un contenedor muy alto
+ * (o una captura de pagina completa) ampliaria el trazo hasta deformarlo. */
+.ms-scenery-art {
+  display: block;
+  height: min(100%, 1400px);
+  width: 100%;
+}
+
+.ms-scenery-layer {
+  transform:
+    translate3d(
+      calc(var(--ms-mx) * var(--ms-depth, 10) * 1px),
+      calc(var(--ms-my) * var(--ms-depth, 10) * .55px - var(--ms-sy) * var(--ms-drift, .02) * 1px),
+      0
+    );
+  transition: transform .5s cubic-bezier(.16, .84, .28, 1);
+}
+
+.ms-scenery-layer[data-depth="1"] { --ms-depth: 7; --ms-drift: .014; }
+.ms-scenery-layer[data-depth="2"] { --ms-depth: 16; --ms-drift: .028; }
+.ms-scenery-layer[data-depth="3"] { --ms-depth: 30; --ms-drift: .046; }
+
+.ms-scenery-left .ms-scenery-layer[data-depth="1"] { color: rgba(28, 96, 57, .10); }
+.ms-scenery-left .ms-scenery-layer[data-depth="2"] { color: rgba(24, 84, 50, .15); }
+.ms-scenery-left .ms-scenery-layer[data-depth="3"] { color: rgba(19, 68, 41, .19); }
+
+.ms-scenery-right .ms-scenery-layer[data-depth="1"] { color: rgba(14, 116, 128, .17); }
+.ms-scenery-right .ms-scenery-layer[data-depth="2"] { color: rgba(13, 104, 114, .24); }
+.ms-scenery-right .ms-scenery-layer[data-depth="3"] { color: rgba(17, 82, 90, .28); }
+
+.ms-frond path {
+  fill: currentColor;
+}
+
+.ms-sway {
+  transform-origin: 0 0;
+  animation: ms-frond-sway 9.5s infinite ease-in-out;
+}
+
+.ms-frond[data-sway="1"] .ms-sway {
+  animation-duration: 12.5s;
+  animation-delay: -3.4s;
+}
+
+.ms-frond[data-sway="2"] .ms-sway {
+  animation-duration: 15s;
+  animation-delay: -7.1s;
+}
+
+@keyframes ms-frond-sway {
+  0%, 100% { transform: rotate(-1.7deg); }
+  50% { transform: rotate(2deg); }
+}
+
+.ms-chart-line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+}
+
+/* La costa va rellena pero mas suave que las curvas de nivel: a este tamano un
+ * relleno pleno se lee como un borron, no como una isla. */
+.ms-chart-shore {
+  fill: currentColor;
+  fill-opacity: .5;
+  stroke: currentColor;
+  stroke-width: 1.1;
+}
+
+.ms-chart-swell {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+}
+
+.ms-chart-trunk {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+/* El contenido siempre por delante del decorado, y el pie pegado al fondo del
+ * viewport aunque la pagina sea corta (404, legales sin scroll). */
+#react-root {
+  display: flex;
+  min-height: 100svh;
+  flex-direction: column;
+}
+
+.ms-app-main {
+  position: relative;
+  z-index: 2;
+  flex: 1 0 auto;
+}
+
+@media (max-width: 1180px) {
+  .ms-scenery {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-scenery-layer {
+    transform: none;
+  }
+}
+
+/* --- 4. Cabecera --------------------------------------------------------- */
+
+/* Misma materia que el pie: tinta con un resplandor verde en la esquina y los
+ * acentos en dorado. Cierra el sitio arriba y abajo con el mismo tono. */
+.ms-header {
+  height: 74px;
+  border-bottom: 1px solid rgba(240, 182, 47, .22);
+  background:
+    radial-gradient(120% 150% at 12% 100%, rgba(28, 96, 57, .38) 0%, transparent 58%),
+    radial-gradient(90% 120% at 92% 92%, rgba(240, 182, 47, .09) 0%, transparent 55%),
+    var(--ink);
+  box-shadow:
+    inset 0 -1px 0 rgba(255, 255, 255, .07),
+    0 10px 34px rgba(6, 12, 8, .18);
+  color: #fff;
+}
+
+/* La marca, en su propia pastilla de vidrio, como el resto de los grupos. */
+.ms-header > div:first-child > a {
+  border-radius: var(--pill);
+  padding: 5px 14px 5px 5px;
+  background: rgba(255, 255, 255, .07);
+  border: 1px solid rgba(255, 255, 255, .1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background-color .2s ease, border-color .2s ease;
+}
+
+.ms-header > div:first-child > a:hover {
+  background: rgba(255, 255, 255, .12);
+  border-color: rgba(255, 255, 255, .2);
+}
+
+/* Grupo central de navegacion: una pastilla de vidrio con los enlaces dentro. */
+.ms-header nav {
+  gap: 4px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: var(--pill);
+  background: rgba(255, 255, 255, .07);
+  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .09);
+  padding: 5px 6px;
+}
+
+.ms-header a,
+.ms-header strong {
+  color: #fff;
+}
+
+.ms-brand-name {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+
+.ms-nav-link {
+  position: relative;
+  padding: 6px 2px;
+  color: rgba(255, 255, 255, .72);
+  font-size: 14px;
+  font-weight: 600;
+  transition: color .2s ease, background-color .2s ease, box-shadow .2s ease;
+}
+
+.ms-nav-link {
+  border-radius: var(--pill);
+  padding: 8px 14px;
+}
+
+.ms-nav-link:hover {
+  background: rgba(255, 255, 255, .1);
+  color: #fff;
+}
+
+.ms-nav-link.is-active {
+  background: rgba(240, 182, 47, .16);
+  box-shadow: inset 0 0 0 1px rgba(240, 182, 47, .3);
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.ms-lang-switch {
+  border-color: rgba(255, 255, 255, .12);
+  background: rgba(255, 255, 255, .07);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .09);
+}
+
+.ms-lang-switch button {
+  color: rgba(255, 255, 255, .62);
+}
+
+.ms-lang-switch button:hover {
+  color: #fff;
+}
+
+.ms-lang-switch button[aria-pressed="true"] {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+.ms-social-link {
+  border-color: rgba(255, 255, 255, .14);
+  background: rgba(255, 255, 255, .07);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--gold);
+  transition: border-color .18s ease, background-color .18s ease, color .18s ease;
+}
+
+.ms-social-link:hover {
+  border-color: var(--gold);
+  background: rgba(240, 182, 47, .16);
+}
+
+.ms-menu-toggle {
+  color: #fff;
+}
+
+.ms-menu-toggle:hover {
+  color: var(--gold);
+}
+
+/* Panel movil: misma tinta que la cabecera. */
+.ms-mobile-menu {
+  border-color: rgba(240, 182, 47, .2);
+  background:
+    radial-gradient(110% 90% at 8% 0%, rgba(28, 96, 57, .38) 0%, transparent 60%),
+    rgba(13, 21, 15, .82);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), var(--sh-3);
+  color: #fff;
+}
+
+.ms-mobile-menu > div {
+  border-color: rgba(255, 255, 255, .14);
+}
+
+.ms-mobile-menu a {
+  color: rgba(255, 255, 255, .82);
+}
+
+.ms-mobile-menu a:hover {
+  background: rgba(255, 255, 255, .09);
+  color: var(--gold);
+}
+
+.ms-mobile-menu button {
+  color: #fff;
+}
+
+/* --- 5. Pie de pagina ---------------------------------------------------- */
+
+.ms-footer {
+  position: relative;
+  z-index: 1;
+  margin-top: 90px;
+  border-top: 1px solid rgba(240, 182, 47, .22);
+  background:
+    radial-gradient(120% 150% at 12% 0%, rgba(28, 96, 57, .38) 0%, transparent 58%),
+    radial-gradient(90% 120% at 92% 8%, rgba(240, 182, 47, .09) 0%, transparent 55%),
+    var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07);
+  color: rgba(255, 255, 255, .68);
+}
+
+.ms-footer-inner {
+  display: grid;
+  width: min(100% - 28px, var(--max));
+  margin: 0 auto;
+  grid-template-columns: minmax(250px, 1.4fr) repeat(3, minmax(0, 1fr));
+  gap: 36px;
+  padding: 56px 0 40px;
+}
+
+.ms-footer-brand {
+  display: grid;
+  max-width: 340px;
+  align-content: start;
+  gap: 14px;
+}
+
+.ms-footer-brand strong {
+  color: #fff;
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+
+.ms-footer-brand p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.ms-footer-socials {
+  display: flex;
+  gap: 8px;
+}
+
+.ms-footer-socials a {
+  display: grid;
+  height: 38px;
+  width: 38px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12);
+  color: var(--gold);
+  transition: border-color .18s ease, background-color .18s ease;
+}
+
+.ms-footer-socials a:hover {
+  border-color: var(--gold);
+  background: rgba(240, 182, 47, .14);
+}
+
+.ms-footer-col {
+  display: grid;
+  align-content: start;
+  gap: 11px;
+}
+
+.ms-footer-col h3 {
+  margin: 0 0 3px;
+  color: rgba(255, 255, 255, .46);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.ms-footer-col a {
+  color: rgba(255, 255, 255, .74);
+  font-size: 14px;
+  font-weight: 500;
+  transition: color .18s ease;
+}
+
+.ms-footer-col a:hover {
+  color: var(--gold);
+}
+
+.ms-footer-base {
+  display: flex;
+  width: min(100% - 28px, var(--max));
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 auto;
+  border-top: 1px solid rgba(255, 255, 255, .1);
+  padding: 18px 0 26px;
+  font-size: 12.5px;
+}
+
+.ms-footer-base a {
+  color: rgba(255, 255, 255, .78);
+  font-weight: 600;
+}
+
+.ms-footer-base a:hover {
+  color: var(--gold);
+}
+
+@media (max-width: 900px) {
+  .ms-footer-inner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px;
+    padding: 40px 0 30px;
+  }
+
+  .ms-footer-brand {
+    grid-column: 1 / -1;
+  }
+}
+
+/* --- 6. Superficies y tarjetas ------------------------------------------ */
+
+.ms-panel {
+  border-radius: var(--r-lg);
+  border-color: rgba(255, 255, 255, .5);
+  background: rgba(255, 253, 247, .58);
+  backdrop-filter: blur(18px) saturate(1.5);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7), var(--sh-1);
+}
+
+/* El rayado diagonal y el gancho decorado de las tarjetas se retiran: a este
+ * tamano solo ensuciaban la foto y competian con el contenido. */
+.ms-nature-panel,
+.ms-nature-tile {
+  border-radius: var(--r-lg);
+  border-color: rgba(255, 255, 255, .5);
+  background: rgba(255, 253, 247, .58);
+  backdrop-filter: blur(18px) saturate(1.5);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7), var(--sh-1);
+}
+
+.ms-nature-panel::before,
+.ms-nature-tile::before {
+  content: none;
+}
+
+.ms-nature-panel:hover,
+.ms-nature-tile:hover {
+  border-color: rgba(255, 255, 255, .72);
+  background: rgba(255, 253, 247, .68);
+}
+
+.ms-experience-card {
+  border-radius: var(--r-lg);
+  border-color: rgba(255, 255, 255, .55);
+  background: rgba(255, 253, 247, .78);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7), var(--sh-1);
+  transition: box-shadow .24s ease, border-color .24s ease;
+}
+
+.ms-experience-card:hover {
+  border-color: rgba(255, 255, 255, .8);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8), var(--sh-2);
+}
+
+.ms-experience-card-image {
+  height: 240px;
+}
+
+.ms-experience-card-content {
+  padding: 20px;
+}
+
+.ms-experience-card-content h3 {
+  font-family: var(--serif);
+  font-size: 23px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+  line-height: 1.12;
+}
+
+.ms-experience-card-content > span:first-child {
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.ms-experience-card-meta {
+  border-top: 1px solid rgba(16, 26, 18, .09);
+}
+
+.ms-experience-card-content strong {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 600;
+}
+
+/* --- 7. Encabezados de seccion y enlaces -------------------------------- */
+
+.ms-home-section-head h2,
+.ms-home-collection h2,
+.ms-group-trips h2 {
+  font-weight: 500;
+  letter-spacing: -.03em;
+}
+
+.ms-home-text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border-bottom: 1px solid rgba(28, 96, 57, .3);
+  padding-bottom: 3px;
+  font-size: 13px;
+  font-weight: 700;
+  transition: border-color .18s ease, color .18s ease;
+}
+
+.ms-home-text-link::after {
+  content: "\2192";
+  font-size: 15px;
+  line-height: 1;
+}
+
+.ms-home-text-link:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.ms-home-interest-card {
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+  transition: box-shadow .24s ease;
+}
+
+.ms-home-interest-card:hover {
+  box-shadow: var(--sh-2);
+}
+
+.ms-home-interest-card::after {
+  background: linear-gradient(180deg, rgba(9, 18, 12, .04) 26%, rgba(9, 18, 12, .58) 62%, rgba(9, 18, 12, .9) 100%);
+}
+
+.ms-home-interest-card strong {
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -.02em;
+}
+
+.ms-home-collection {
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-2);
+}
+
+/* Velo mas firme: estas portadas llevan fotos claras y el titulo perdia
+ * contraste justo donde cae el cielo o la arena. */
+.ms-home-collection::after {
+  background:
+    linear-gradient(94deg, rgba(8, 18, 12, .94) 0%, rgba(8, 18, 12, .74) 42%, rgba(8, 18, 12, .3) 100%),
+    linear-gradient(0deg, rgba(8, 18, 12, .5) 0%, transparent 62%);
+}
+
+.ms-home-collection-content {
+  padding: 36px;
+}
+
+.ms-home-collection-list a {
+  border-bottom: 1px solid rgba(255, 255, 255, .14);
+  padding-bottom: 7px;
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: color .2s ease, border-color .2s ease;
+}
+
+.ms-home-collection-list a:hover {
+  border-color: var(--gold);
+}
+
+.ms-group-trips {
+  position: relative;
+  border-radius: var(--r-xl);
+  border-color: rgba(240, 182, 47, .3);
+  background:
+    radial-gradient(110% 170% at 88% 4%, rgba(240, 182, 47, .14) 0%, transparent 58%),
+    radial-gradient(90% 130% at 4% 96%, rgba(28, 96, 57, .34) 0%, transparent 60%),
+    var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+
+.ms-group-trips h2 {
+  color: #fff;
+}
+
+.ms-group-trips > strong {
+  border-radius: var(--pill);
+  background: var(--gold);
+  font-weight: 800;
+  letter-spacing: .1em;
+}
+
+.ms-home-trust {
+  gap: 10px;
+  border-bottom: 0;
+  background: transparent;
+  padding: 18px 0;
+}
+
+.ms-home-trust span {
+  border: 1px solid rgba(255, 255, 255, .6);
+  border-radius: var(--pill);
+  background: rgba(255, 253, 247, .5);
+  backdrop-filter: blur(16px) saturate(1.5);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8), var(--sh-1);
+  padding: 11px 22px;
+  color: var(--ink-2);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.ms-home-trust span:last-child {
+  border-right: 1px solid rgba(255, 255, 255, .6);
+}
+
+/* --- 8. Portada ---------------------------------------------------------- */
+
+.ms-home-hero-copy h1 {
+  font-weight: 400;
+  letter-spacing: -.04em;
+}
+
+.ms-home-hero-copy > p:last-child {
+  font-weight: 500;
+  letter-spacing: -.008em;
+}
+
+.ms-home-hero .ms-hero-shade {
+  background:
+    linear-gradient(92deg, rgba(9, 20, 13, .9) 0%, rgba(9, 20, 13, .6) 46%, rgba(9, 20, 13, .18) 100%),
+    linear-gradient(0deg, rgba(9, 20, 13, .78) 0%, transparent 56%);
+}
+
+.ms-catalog-search-hero {
+  border-radius: var(--r-lg);
+  border-color: rgba(255, 255, 255, .5);
+  box-shadow: 0 28px 70px rgba(4, 13, 8, .34);
+}
+
+.ms-control-shell input,
+.ms-control-shell select {
+  border-radius: var(--r-sm);
+  font-weight: 600;
+}
+
+input, select, textarea {
+  border-radius: var(--r-sm);
+  font-weight: 500;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  box-shadow: 0 0 0 3px rgba(28, 96, 57, .15);
+}
+
+/* --- 9. Conocenos: la ruta que se volvio Mono Solo ----------------------- */
+
+.ms-about-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr);
+  align-items: center;
+  gap: clamp(28px, 5vw, 64px);
+  padding: clamp(36px, 6vw, 76px) 0 clamp(40px, 6vw, 72px);
+}
+
+.ms-about-hero-copy {
+  display: grid;
+  align-content: start;
+  gap: 20px;
+}
+
+.ms-about-hero h1 {
+  color: var(--ink);
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(42px, 6.4vw, 82px);
+  font-weight: 400;
+  letter-spacing: -.045em;
+  line-height: .94;
+}
+
+.ms-about-hero h1 em {
+  color: var(--green);
+  font-style: italic;
+}
+
+.ms-about-lead {
+  max-width: 54ch;
+  margin: 0;
+  color: var(--ink-2);
+  font-size: clamp(16px, 1.5vw, 18.5px);
+  font-weight: 400;
+  line-height: 1.65;
+}
+
+.ms-about-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.ms-about-facts span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, .6);
+  border-radius: var(--pill);
+  background: rgba(255, 253, 247, .5);
+  backdrop-filter: blur(16px) saturate(1.5);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8), var(--sh-1);
+  padding: 8px 15px;
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.ms-about-facts b {
+  color: var(--green);
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.ms-about-hero-media {
+  position: relative;
+}
+
+.ms-about-hero-media > img {
+  width: 100%;
+  aspect-ratio: 4 / 3.4;
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-2);
+  object-fit: cover;
+}
+
+.ms-about-section-head {
+  display: grid;
+  max-width: 720px;
+  gap: 14px;
+  padding-top: clamp(30px, 5vw, 58px);
+}
+
+.ms-about-section-head h2 {
+  color: var(--ink);
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(32px, 4.2vw, 52px);
+  font-weight: 400;
+  letter-spacing: -.035em;
+  line-height: 1.02;
+}
+
+.ms-about-section-head p {
+  max-width: 60ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.ms-about-values {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: clamp(48px, 7vw, 88px);
+}
+
+.ms-about-value {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  border-left: 1px solid rgba(16, 26, 18, .16);
+  padding: 2px 0 2px 20px;
+}
+
+.ms-about-value h3 {
+  color: var(--ink);
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -.02em;
+}
+
+.ms-about-value p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.ms-about-cta {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 30px;
+  margin-top: clamp(48px, 7vw, 88px);
+  border: 1px solid rgba(240, 182, 47, .3);
+  border-radius: var(--r-xl);
+  background:
+    radial-gradient(110% 160% at 86% 6%, rgba(240, 182, 47, .14) 0%, transparent 56%),
+    radial-gradient(90% 140% at 6% 94%, rgba(28, 96, 57, .36) 0%, transparent 60%),
+    var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
+  padding: clamp(26px, 4.5vw, 48px);
+  color: rgba(255, 255, 255, .74);
+}
+
+.ms-about-cta h2 {
+  margin: 0 0 10px;
+  color: #fff;
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.2vw, 40px);
+  font-weight: 400;
+  letter-spacing: -.03em;
+  line-height: 1.04;
+}
+
+.ms-about-cta p {
+  max-width: 58ch;
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.6;
+}
+
+.ms-about-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ms-about-cta .ms-button-secondary {
+  border-color: rgba(255, 255, 255, .42);
+  background: rgba(255, 255, 255, .07);
+  color: #fff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.ms-about-cta .ms-button-secondary:hover {
+  border-color: #fff;
+  background: rgba(255, 255, 255, .16);
+  color: #fff;
+}
+
+@media (max-width: 980px) {
+  .ms-about-hero,
+  .ms-about-cta {
+    grid-template-columns: 1fr;
+  }
+
+  .ms-about-values {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+.ms-chart-route {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-dasharray: 7 9;
+}
+
+/* --- 10. Bloques de contenido (detalle de experiencia, legales) ---------- */
+
+/* Los titulos de bloque pasan a la serif del sistema: en la ficha larga son
+ * los que marcan el ritmo de lectura. */
+.ms-nature-panel > h2,
+.ms-panel > h2 {
+  font-family: var(--serif);
+  font-size: 25px;
+  font-weight: 500;
+  letter-spacing: -.025em;
+  line-height: 1.12;
+}
+
+/* --- 11. Conocenos: la tira de la historia ------------------------------ */
+
+.ms-story {
+  margin-top: clamp(30px, 5vw, 58px);
+  border-top: 1px solid var(--line);
+}
+
+.ms-story-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: clamp(28px, 4vw, 44px);
+}
+
+.ms-story-chapter {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .55);
+  border-radius: var(--r-lg);
+  background: rgba(255, 253, 247, .58);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7);
+  padding: 0;
+  text-align: left;
+  transition: border-color .18s ease, background-color .18s ease;
+}
+
+.ms-story-chapter img {
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  object-fit: cover;
+  filter: grayscale(.42);
+  transition: filter .28s ease;
+}
+
+.ms-story-chapter:hover {
+  border-color: rgba(28, 96, 57, .34);
+}
+
+.ms-story-chapter:hover img,
+.ms-story-chapter[data-active] img {
+  filter: none;
+}
+
+.ms-story-chapter[data-active] {
+  border-color: var(--ink);
+  background: var(--ink);
+}
+
+.ms-story-chapter-body {
+  display: grid;
+  gap: 5px;
+  padding: 14px 16px 16px;
+}
+
+.ms-story-chapter i {
+  color: var(--gold-2);
+  font-family: var(--serif);
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: .08em;
+}
+
+.ms-story-chapter strong {
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -.02em;
+  line-height: 1.14;
+}
+
+.ms-story-chapter small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.ms-story-chapter[data-active] i { color: var(--gold); }
+.ms-story-chapter[data-active] strong { color: #fff; }
+.ms-story-chapter[data-active] small { color: rgba(255, 255, 255, .58); }
+
+/* El capitulo abierto. Se remonta con `key` al cambiar, asi que la entrada
+ * marca el cambio sin necesidad de gestionar estado de animacion. */
+.ms-story-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(22px, 3.4vw, 46px);
+  margin-top: 18px;
+  border: 1px solid rgba(255, 255, 255, .55);
+  border-radius: var(--r-xl);
+  background: rgba(255, 253, 247, .58);
+  backdrop-filter: blur(18px) saturate(1.5);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7);
+  padding: clamp(18px, 2.4vw, 26px);
+  animation: ms-story-in .28s ease both;
+}
+
+@keyframes ms-story-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.ms-story-panel figure {
+  margin: 0;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+}
+
+.ms-story-panel figure img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.ms-story-copy {
+  display: grid;
+  align-content: center;
+  gap: 0;
+}
+
+.ms-route-place {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  color: var(--gold-2);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.ms-route-place::before {
+  content: "";
+  height: 6px;
+  width: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.ms-story-copy h3 {
+  margin: 0 0 14px;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: clamp(24px, 2.6vw, 34px);
+  font-weight: 500;
+  letter-spacing: -.028em;
+  line-height: 1.08;
+}
+
+.ms-route-quote {
+  margin: 0 0 14px;
+  border-left: 2px solid var(--gold);
+  padding-left: 16px;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: clamp(17px, 1.7vw, 21px);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+.ms-story-text {
+  max-width: 48ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: 15.5px;
+  line-height: 1.68;
+}
+
+.ms-story-progress {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-family: var(--serif);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .1em;
+}
+
+@media (max-width: 980px) {
+  .ms-story-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ms-story-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .ms-story-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .ms-story-chapter {
+    grid-template-columns: 110px minmax(0, 1fr);
+    align-items: center;
+  }
+
+  .ms-story-chapter img {
+    height: 100%;
+    aspect-ratio: 1;
+  }
+}
+
+/* --- 12. Grano ----------------------------------------------------------- */
+
+/*
+ * Una capa de ruido finisimo sobre las superficies de tinta. Es lo que separa
+ * un bloque de color plano de algo que parece un material: rompe el degradado,
+ * mata el "banding" y da textura sin dibujar nada. Va en `soft-light` al 7%,
+ * asi que se percibe pero no se ve.
+ *
+ * El ruido es un SVG en linea (feTurbulence): no hay archivo que cargar.
+ */
+:root {
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.ms-header::after,
+.ms-footer::after,
+.ms-console-side::after,
+.ms-group-trips::after,
+.ms-about-cta::after,
+.ms-next-trip::after,
+.ms-story-chapter[data-active]::after,
+.ms-mobile-menu::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background-image: var(--grain);
+  background-size: 160px 160px;
+  mix-blend-mode: soft-light;
+  opacity: .07;
+  pointer-events: none;
+}
+
+/* El contenido de esas superficies queda por delante del grano. */
+.ms-header > *,
+.ms-footer > *,
+.ms-console-side > *,
+.ms-group-trips > *,
+.ms-about-cta > *,
+.ms-next-trip > *,
+.ms-story-chapter > *,
+.ms-mobile-menu > * {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .ms-header::after,
+  .ms-footer::after,
+  .ms-console-side::after,
+  .ms-group-trips::after,
+  .ms-about-cta::after,
+  .ms-next-trip::after,
+  .ms-story-chapter[data-active]::after,
+  .ms-mobile-menu::after {
+    content: none;
+  }
+}
+
+/* --- 13. Dorado legible -------------------------------------------------- */
+
+/*
+ * El dorado de marca (#d99613) sobre crema da 2.4:1, muy por debajo del minimo
+ * AA de 4.5:1 para texto pequeno. El texto usa un ambar mas profundo, y el
+ * dorado vivo se reserva para los fondos de tinta, donde es el que contrasta.
+ */
+.ms-home-hero-copy .ms-eyebrow,
+.ms-home-collection .ms-eyebrow,
+.ms-group-trips .ms-eyebrow,
+.ms-next-trip .ms-eyebrow,
+.ms-auth-cover-body .ms-eyebrow,
+.ms-on-dark .ms-eyebrow {
+  color: var(--gold-bright);
+}
+
+.ms-story-chapter[data-active] i {
+  color: var(--gold-bright);
+}

@@ -1,0 +1,50 @@
+{
+  "name": "mono-solo-travel",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Marketplace turistico Mono Solo Travel con React, Vite, Tailwind y Supabase.",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5174",
+    "start": "npm run preview",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 4174",
+    "config:generate": "node scripts/config/generate-runtime-config.js",
+    "check:js": "node scripts/qa/check-js.js",
+    "check:imports": "node scripts/qa/check-imports.js",
+    "check:routes": "node scripts/qa/check-routes.js",
+    "check:secrets": "node scripts/qa/check-secrets.js",
+    "check": "npm run check:js && npm run check:imports && npm run check:secrets",
+    "test:smoke": "node scripts/qa/check-routes.js",
+    "test:e2e": "node scripts/qa/e2e/booking-flow.e2e.js",
+    "check:deploy": "node scripts/qa/check-deploy.js"
+  },
+  "keywords": [
+    "mono-solo-travel",
+    "react",
+    "vite",
+    "tailwind",
+    "supabase",
+    "marketplace",
+    "turismo",
+    "panama"
+  ],
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
+    "lucide-react": "^0.468.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-router-dom": "^7.18.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.3",
+    "autoprefixer": "^10.5.2",
+    "postcss": "^8.5.16",
+    "tailwindcss": "^3.4.19",
+    "vite": "^8.1.0"
+  }
+}

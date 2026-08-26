@@ -1,0 +1,1679 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #101a12;
+  --ink-2: #2b3a2f;
+  --muted: #5c6b5e;
+  --line: rgba(16, 26, 18, .13);
+  --bg: #f6f1e3;
+  /* Superficies "glass": translucidas + backdrop-filter (ver bloque Glass mas
+   * abajo). Al ser tokens, cada bg-surface de Tailwind y cada var(--surface)
+   * del CSS se vuelven vidrio de una sola vez, sin tocar los componentes.
+   * --surface-solid queda para lo que deba seguir siendo opaco. */
+  --surface: rgba(255, 255, 255, .58);
+  --surface-2: rgba(251, 248, 237, .62);
+  --surface-solid: #fff;
+  --ink-glass: rgba(22, 32, 22, .82);
+  --glass-blur: blur(14px);
+  --glass-blur-strong: blur(18px);
+  --gold: #f0b62f;
+  --green: #1c6039;
+  --teal: #12797d;
+  --red: #c44732;
+  --warn: #a5560e;         /* naranja quemado: AA sobre claro y distinto del dorado */
+  --shadow: 0 16px 42px rgba(22, 32, 22, .10);
+  --r: 10px;
+  --max: 1240px;
+  --sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --serif: "Fraunces", Georgia, "Times New Roman", serif;
+
+  /* --- Design pass 2026-08-19: escala ampliada -------------------------- */
+  --shell: #fffdf7;        /* superficie opaca mas clara que --bg */
+  --sand: #ece3cd;         /* separadores y rellenos calidos */
+  --green-2: #2c8a54;      /* hover / estados vivos del verde */
+  --gold-2: #8f6209;       /* dorado para TEXTO sobre fondo claro (AA) */
+  --gold-bright: #d99613;  /* dorado vivo: solo relleno, borde o texto sobre tinta */
+  --clay: #b8543a;         /* acento tierra (cultura, Casco) */
+  --sea: #0e7480;          /* acento caribe (islas, agua) */
+
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --pill: 999px;
+
+  --sh-1: 0 1px 2px rgba(16, 26, 18, .05), 0 2px 8px rgba(16, 26, 18, .05);
+  --sh-2: 0 2px 6px rgba(16, 26, 18, .05), 0 14px 30px rgba(16, 26, 18, .09);
+  --sh-3: 0 4px 10px rgba(16, 26, 18, .06), 0 28px 60px rgba(16, 26, 18, .16);
+  --ring: 0 0 0 3px rgba(240, 182, 47, .5);
+
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --ease-soft: cubic-bezier(.4, .14, .3, 1);
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    background:
+      linear-gradient(135deg, rgba(31, 107, 61, .055) 0 1px, transparent 1px 18px),
+      var(--bg);
+    color: var(--ink-2);
+    font-family: var(--sans);
+    line-height: 1.5;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  label {
+    display: grid;
+    gap: 6px;
+    color: var(--ink);
+    font-weight: 800;
+    font-size: 13px;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    min-height: 42px;
+    padding: 0 12px;
+    background: var(--surface);
+    color: var(--ink);
+    transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(31, 107, 61, .13);
+    outline: none;
+  }
+
+  select {
+    appearance: none;
+  }
+
+  textarea {
+    min-height: 100px;
+    padding-top: 10px;
+  }
+
+  dt {
+    color: var(--muted);
+  }
+
+  dd {
+    margin: 0;
+    color: var(--ink);
+    font-weight: 900;
+  }
+}
+
+@layer components {
+  .ms-button {
+    @apply inline-flex min-h-10 items-center justify-center rounded-full px-4 text-sm font-extrabold;
+    white-space: nowrap;
+    transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease, background-color .22s ease;
+  }
+
+  .ms-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(22, 32, 22, .13);
+  }
+
+  .ms-button-primary {
+    @apply bg-ink text-gold;
+  }
+
+  .ms-button-secondary {
+    @apply border border-line bg-surface text-ink;
+  }
+
+  .ms-panel {
+    @apply rounded-[14px] border border-line bg-surface shadow-[0_2px_8px_rgba(16,24,21,.04)];
+  }
+
+  .ms-eyebrow {
+    @apply mb-2 text-xs font-black uppercase tracking-[.08em] text-gold;
+  }
+
+  .ms-page {
+    width: min(100% - 28px, var(--max));
+    margin: 0 auto;
+    padding: 28px 0 64px;
+  }
+
+  .ms-page-wide {
+    --max: 1440px;
+  }
+
+  .ms-logo-mark {
+    @apply grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-gold;
+    border: 1px solid rgba(246, 196, 49, .55);
+  }
+
+  .ms-logo-mark-sm {
+    @apply h-9 w-9;
+  }
+
+  .ms-logo-mark img {
+    height: 100%;
+    width: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .ms-app-main {
+    position: relative;
+    overflow: clip;
+  }
+
+  .ms-experience-loader {
+    display: grid;
+    min-height: min(620px, calc(100svh - 72px));
+    place-items: center;
+    padding: 42px 18px;
+    color: var(--ink);
+  }
+
+  .ms-experience-loader-inner {
+    display: grid;
+    width: min(100%, 540px);
+    justify-items: center;
+    gap: 18px;
+    text-align: center;
+  }
+
+  .ms-experience-loader-media {
+    position: relative;
+    width: clamp(300px, 40vw, 500px);
+    aspect-ratio: 62 / 27;
+    overflow: hidden;
+    border: 1px solid rgba(31, 107, 61, .18);
+    border-radius: 8px;
+    background: var(--surface);
+    box-shadow: 0 24px 60px rgba(22, 32, 22, .16);
+  }
+
+  .ms-experience-loader-media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border: 8px solid rgba(246, 196, 49, .13);
+    pointer-events: none;
+  }
+
+  .ms-experience-loader-media video {
+    display: block;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transform: scale(1.05);
+    transition: opacity .24s ease;
+  }
+
+  .ms-experience-loader-media > img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 74px;
+    height: 74px;
+    object-fit: cover;
+    transform: translate(-50%, -50%);
+  }
+
+  .ms-experience-loader-media.is-ready video {
+    opacity: 1;
+  }
+
+  .ms-experience-loader-copy {
+    display: grid;
+    justify-items: center;
+    gap: 5px;
+  }
+
+  .ms-experience-loader-copy > span:first-child {
+    color: var(--green);
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .ms-experience-loader-copy strong {
+    font-family: var(--serif);
+    font-size: clamp(25px, 4vw, 34px);
+    line-height: 1.08;
+  }
+
+  .ms-experience-loader-dots {
+    display: flex;
+    min-height: 12px;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .ms-experience-loader-dots i {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--gold);
+    animation: ms-loader-dot 1.2s infinite ease-in-out;
+  }
+
+  .ms-experience-loader-dots i:nth-child(2) {
+    animation-delay: .14s;
+  }
+
+  .ms-experience-loader-dots i:nth-child(3) {
+    animation-delay: .28s;
+  }
+
+  .ms-experience-loader-track {
+    width: min(100%, 290px);
+    height: 3px;
+    overflow: hidden;
+    background: rgba(22, 32, 22, .11);
+  }
+
+  .ms-experience-loader-track i {
+    display: block;
+    width: 42%;
+    height: 100%;
+    background: var(--green);
+    animation: ms-loader-track 1.35s infinite cubic-bezier(.65, 0, .35, 1);
+  }
+
+  .ms-experience-loader-compact {
+    min-height: 230px;
+    padding: 12px;
+  }
+
+  .ms-experience-loader-compact .ms-experience-loader-inner {
+    grid-template-columns: auto minmax(0, 1fr);
+    width: min(100%, 520px);
+    align-items: center;
+    justify-items: start;
+    gap: 16px;
+    text-align: left;
+  }
+
+  .ms-experience-loader-compact .ms-experience-loader-media {
+    grid-row: 1 / span 2;
+    width: 210px;
+  }
+
+  .ms-experience-loader-compact .ms-experience-loader-copy {
+    justify-items: start;
+  }
+
+  .ms-experience-loader-compact .ms-experience-loader-copy strong {
+    font-size: 24px;
+  }
+
+  .ms-experience-loader-compact .ms-experience-loader-track {
+    width: 100%;
+  }
+
+  .ms-control-shell {
+    position: relative;
+    display: block;
+  }
+
+  .ms-control-shell input,
+  .ms-control-shell select {
+    min-height: 48px;
+    border-color: rgba(22, 32, 22, .18);
+    background: var(--surface-2);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8);
+    font-weight: 800;
+  }
+
+  .ms-control-shell:focus-within input,
+  .ms-control-shell:focus-within select {
+    border-color: var(--green);
+    background: var(--surface);
+    box-shadow: 0 0 0 3px rgba(31, 107, 61, .14), 0 8px 20px rgba(22, 32, 22, .08);
+  }
+
+  .ms-select-control {
+    cursor: pointer;
+    padding-right: 42px;
+  }
+
+  .ms-date-control,
+  .ms-number-control,
+  .ms-search-control {
+    padding-left: 42px;
+  }
+
+  .ms-date-control::-webkit-calendar-picker-indicator {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    opacity: 0;
+  }
+
+  .ms-control-icon,
+  .ms-control-leading-icon {
+    position: absolute;
+    top: 50%;
+    z-index: 2;
+    color: var(--green);
+    pointer-events: none;
+    transform: translateY(-50%);
+  }
+
+  .ms-control-icon {
+    right: 13px;
+  }
+
+  .ms-control-leading-icon {
+    left: 13px;
+  }
+
+  .ms-filter-toggle {
+    display: flex;
+    min-height: 46px;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    padding: 0 14px;
+    color: var(--ink);
+    font-weight: 900;
+  }
+
+  .ms-hero {
+    position: relative;
+    min-height: clamp(560px, calc(100svh - 112px), 760px);
+    isolation: isolate;
+  }
+
+  .ms-hero-media,
+  .ms-hero-shade {
+    position: absolute;
+    inset: 0;
+  }
+
+  .ms-hero-media {
+    background: var(--ink);
+    /* Solo esta capa necesita recortarse (las fotos llevan scale(1.04) para el
+     * efecto ken-burns). Antes el recorte estaba en .ms-hero, que tambien es
+     * el contenedor del buscador: su menu desplegable (categoria/fecha) se
+     * cortaba en el borde inferior del hero en vez de flotar sobre el resto
+     * de la pagina. */
+    overflow: hidden;
+  }
+
+  .ms-hero-slide {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    width: 100%;
+    max-width: none;
+    object-fit: cover;
+    opacity: 0;
+    animation: ms-hero-fade 20s infinite ease-in-out;
+    transform: scale(1.04);
+  }
+
+  .ms-hero-slide:only-child {
+    opacity: 1;
+    animation: ms-hero-drift 18s infinite alternate ease-in-out;
+  }
+
+  .ms-hero-shade {
+    z-index: 1;
+    background:
+      linear-gradient(90deg, rgba(13, 24, 17, .88), rgba(13, 24, 17, .48) 48%, rgba(13, 24, 17, .25)),
+      linear-gradient(0deg, rgba(13, 24, 17, .64), transparent 42%);
+  }
+
+  .ms-hero-content {
+    position: relative;
+    z-index: 3;
+    display: grid;
+    width: min(100% - 28px, var(--max));
+    margin: 0 auto;
+    gap: 18px;
+    padding: 72px 0 36px;
+  }
+
+  .ms-hero-content > * {
+    animation: ms-rise-in .72s both cubic-bezier(.19, 1, .22, 1);
+  }
+
+  .ms-hero-content > :nth-child(2) {
+    animation-delay: .08s;
+  }
+
+  .ms-hero-content > :nth-child(3) {
+    animation-delay: .16s;
+  }
+
+  .ms-hero-content > :nth-child(4) {
+    animation-delay: .24s;
+  }
+
+  .ms-hero-content > :nth-child(5) {
+    animation-delay: .32s;
+  }
+
+  .ms-nature-panel,
+  .ms-nature-tile {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background:
+      linear-gradient(135deg, rgba(31, 107, 61, .07) 0 1px, transparent 1px 20px),
+      var(--surface);
+    box-shadow: 0 2px 8px rgba(16, 24, 21, .04);
+    transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+  }
+
+  .ms-nature-panel::before,
+  .ms-nature-tile::before {
+    content: "";
+    position: absolute;
+    inset: auto 12px 10px auto;
+    width: 44px;
+    height: 28px;
+    border: 1px solid rgba(31, 107, 61, .18);
+    border-left-color: transparent;
+    border-bottom-color: transparent;
+    border-radius: 100% 0 100% 0;
+    transform: rotate(-18deg);
+    pointer-events: none;
+  }
+
+  .ms-nature-panel > *,
+  .ms-nature-tile > * {
+    position: relative;
+  }
+
+  .ms-nature-tile:hover,
+  .ms-nature-panel:hover {
+    border-color: rgba(31, 107, 61, .28);
+    box-shadow: 0 18px 34px rgba(16, 24, 21, .11);
+    transform: translateY(-3px);
+  }
+
+  .ms-tetris-grid {
+    display: grid;
+    gap: 14px;
+    align-items: stretch;
+    perspective: 1200px;
+  }
+
+  .ms-tetris-piece {
+    min-width: 0;
+    height: 100%;
+    opacity: .2;
+    transform: translate3d(var(--ms-piece-x), -90px, 0) rotate(var(--ms-piece-rotate)) scale(.96);
+    transform-origin: center bottom;
+    will-change: transform, opacity;
+  }
+
+  .ms-tetris-piece.is-landed {
+    animation: ms-tetris-drop .72s var(--ms-piece-delay) both cubic-bezier(.18, .82, .22, 1);
+  }
+
+  .ms-tetris-piece > article {
+    height: 100%;
+  }
+
+  .ms-group-trips {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 28px;
+    margin-top: 28px;
+    overflow: hidden;
+    border: 1px solid rgba(246, 196, 49, .32);
+    border-radius: 8px;
+    background:
+      repeating-linear-gradient(135deg, transparent 0 22px, rgba(246, 196, 49, .045) 23px 24px),
+      var(--ink);
+    padding: clamp(24px, 5vw, 54px);
+    color: white;
+  }
+
+  .ms-group-trips h2 {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(34px, 5vw, 58px);
+    line-height: 1;
+  }
+
+  .ms-group-trips p:not(.ms-eyebrow) {
+    max-width: 690px;
+    margin: 14px 0 0;
+    color: rgba(255, 255, 255, .72);
+    font-size: 17px;
+  }
+
+  .ms-group-trips > strong {
+    border: 1px solid rgba(246, 196, 49, .62);
+    border-radius: 999px;
+    background: var(--gold);
+    padding: 12px 18px;
+    color: var(--ink);
+    font-size: 13px;
+    text-transform: uppercase;
+  }
+
+  .ms-assistant-mark {
+    display: grid;
+    height: 34px;
+    width: 34px;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--ink);
+  }
+
+  .ms-assistant-panel header > button {
+    display: grid;
+    height: 32px;
+    width: 32px;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--muted);
+  }
+
+  .ms-assistant-panel header > button:hover {
+    background: var(--bg);
+    color: var(--ink);
+  }
+
+  .ms-account-entry {
+    position: relative;
+    display: flex;
+    flex: none;
+  }
+
+  .ms-login-button {
+    height: 40px;
+    width: 40px;
+    gap: 8px;
+    padding: 0;
+  }
+
+  .ms-login-prompt {
+    position: absolute;
+    top: calc(100% + 14px);
+    right: 0;
+    z-index: 90;
+    display: flex;
+    width: 268px;
+    align-items: flex-start;
+    gap: 9px;
+    border: 1px solid rgba(31, 107, 61, .28);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, .78);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 18px 42px rgba(22, 32, 22, .18);
+    padding: 12px 13px;
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.35;
+    white-space: normal;
+    animation:
+      ms-login-prompt-in .5s both cubic-bezier(.16, 1.2, .28, 1),
+      ms-login-prompt-float 3s .6s infinite ease-in-out;
+  }
+
+  .ms-login-prompt::before {
+    content: "";
+    position: absolute;
+    top: -7px;
+    right: 20px;
+    height: 12px;
+    width: 12px;
+    border-top: 1px solid rgba(31, 107, 61, .28);
+    border-left: 1px solid rgba(31, 107, 61, .28);
+    background: var(--surface);
+    transform: rotate(45deg);
+  }
+
+  .ms-login-prompt svg {
+    flex: none;
+    margin-top: 1px;
+    color: var(--green);
+    animation: ms-login-prompt-spark 1.8s infinite ease-in-out;
+  }
+
+  .ms-travel-assistant {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 90;
+  }
+
+  .ms-assistant-trigger {
+    display: inline-flex;
+    min-height: 50px;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    border: 1px solid rgba(246, 196, 49, .5);
+    border-radius: 999px;
+    background: var(--ink);
+    box-shadow: 0 16px 38px rgba(22, 32, 22, .26);
+    padding: 0 17px;
+    color: var(--gold);
+    font-weight: 900;
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+
+  .ms-assistant-trigger:hover {
+    box-shadow: 0 20px 46px rgba(22, 32, 22, .32);
+    transform: translateY(-2px);
+  }
+
+  .ms-assistant-panel {
+    position: absolute;
+    right: 0;
+    bottom: 64px;
+    width: min(390px, calc(100vw - 28px));
+    overflow: hidden;
+    border: 1px solid rgba(22, 32, 22, .18);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, .82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 28px 70px rgba(22, 32, 22, .28);
+    animation: ms-assistant-in .32s both cubic-bezier(.18, .86, .26, 1);
+  }
+
+  .ms-assistant-panel header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 11px;
+    border-bottom: 1px solid rgba(255, 255, 255, .12);
+    background: var(--ink);
+    padding: 14px;
+    color: white;
+  }
+
+  .ms-assistant-panel header strong,
+  .ms-assistant-panel header small {
+    display: block;
+  }
+
+  .ms-assistant-panel header small {
+    margin-top: 2px;
+    color: rgba(255, 255, 255, .65);
+  }
+
+  .ms-assistant-panel header > button {
+    color: rgba(255, 255, 255, .7);
+  }
+
+  .ms-assistant-panel header > button:hover {
+    background: rgba(255, 255, 255, .1);
+    color: white;
+  }
+
+  .ms-assistant-body {
+    display: grid;
+    max-height: min(570px, calc(100svh - 180px));
+    gap: 14px;
+    overflow-y: auto;
+    padding: 15px;
+  }
+
+  .ms-assistant-message {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: var(--green);
+  }
+
+  .ms-assistant-message p {
+    margin: 0;
+    color: var(--ink);
+    font-weight: 800;
+  }
+
+  .ms-assistant-choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .ms-assistant-choices button {
+    min-height: 48px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface-2);
+    padding: 9px 10px;
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 900;
+    text-align: left;
+    transition: border-color .18s ease, background-color .18s ease, transform .18s ease;
+  }
+
+  .ms-assistant-choices button:hover {
+    border-color: var(--green);
+    background: rgba(31, 107, 61, .08);
+    transform: translateY(-2px);
+  }
+
+  .ms-assistant-results {
+    display: grid;
+    gap: 2px;
+  }
+
+  .ms-assistant-results a {
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--line);
+    padding: 9px 0;
+  }
+
+  .ms-assistant-results a:last-child {
+    border-bottom: 0;
+  }
+
+  .ms-assistant-results img {
+    height: 50px;
+    width: 58px;
+    border-radius: 6px;
+    object-fit: cover;
+  }
+
+  .ms-assistant-results strong,
+  .ms-assistant-results small {
+    display: block;
+  }
+
+  .ms-assistant-results strong {
+    color: var(--ink);
+    font-size: 13px;
+    line-height: 1.25;
+  }
+
+  .ms-assistant-results small {
+    margin-top: 3px;
+    color: var(--muted);
+  }
+
+  .ms-assistant-results b {
+    color: var(--green);
+    font-size: 12px;
+  }
+
+  .ms-assistant-reset {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 42px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--green);
+    font-weight: 900;
+  }
+}
+
+@keyframes ms-loader-dot {
+  0%, 70%, 100% { opacity: .35; transform: translateY(0); }
+  35% { opacity: 1; transform: translateY(-4px); }
+}
+
+@keyframes ms-loader-track {
+  0% { transform: translateX(-105%); }
+  100% { transform: translateX(245%); }
+}
+
+@keyframes ms-hero-fade {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+
+  8%,
+  34% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes ms-hero-drift {
+  from {
+    transform: scale(1.03) translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: scale(1.1) translate3d(-1.5%, -1%, 0);
+  }
+}
+
+@keyframes ms-rise-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes ms-tetris-drop {
+  0% {
+    opacity: .2;
+    transform: translate3d(var(--ms-piece-x), -90px, 0) rotate(var(--ms-piece-rotate)) scale(.96);
+  }
+
+  42% {
+    opacity: 1;
+    transform: translate3d(var(--ms-piece-x), -22px, 0) rotate(var(--ms-piece-rotate)) scale(.98);
+  }
+
+  68% {
+    transform: translate3d(var(--ms-piece-mid-x), 7px, 0) rotate(1deg) scale(.99);
+  }
+
+  78% {
+    transform: translate3d(0, 9px, 0) rotate(-1deg) scale(1);
+  }
+
+  87% {
+    transform: translate3d(0, -7px, 0) rotate(.5deg) scale(1);
+  }
+
+  95% {
+    transform: translate3d(0, 3px, 0) rotate(0) scale(1);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotate(0) scale(1);
+  }
+}
+
+@keyframes ms-login-prompt-in {
+  0% { opacity: 0; transform: translate3d(0, -10px, 0) scale(.9); }
+  70% { opacity: 1; transform: translate3d(0, 3px, 0) scale(1.02); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes ms-login-prompt-float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, 4px, 0); }
+}
+
+@keyframes ms-login-prompt-spark {
+  0%, 100% { transform: rotate(0) scale(1); }
+  50% { transform: rotate(14deg) scale(1.1); }
+}
+
+@keyframes ms-assistant-in {
+  from { opacity: 0; transform: translate3d(0, 18px, 0) scale(.96); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@media (max-width: 700px) {
+  .ms-experience-loader {
+    min-height: 520px;
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .ms-experience-loader-media {
+    width: min(100%, 350px);
+  }
+
+  .ms-experience-loader-compact {
+    min-height: 270px;
+  }
+
+  .ms-experience-loader-compact .ms-experience-loader-inner {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .ms-experience-loader-compact .ms-experience-loader-media {
+    grid-row: auto;
+    width: min(100%, 280px);
+  }
+
+  .ms-experience-loader-compact .ms-experience-loader-copy {
+    justify-items: center;
+  }
+
+  .ms-group-trips {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .ms-group-trips > strong {
+    justify-self: start;
+  }
+
+  .ms-login-prompt {
+    position: fixed;
+    top: 80px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+  }
+
+  .ms-login-prompt::before {
+    right: 60px;
+  }
+
+  .ms-travel-assistant {
+    right: 12px;
+    bottom: 12px;
+  }
+
+  .ms-assistant-panel {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: 74px;
+    width: auto;
+  }
+
+  .ms-assistant-trigger span {
+    display: none;
+  }
+
+  .ms-assistant-trigger {
+    height: 52px;
+    width: 52px;
+    padding: 0;
+  }
+}
+
+@media (min-width: 640px) {
+  .ms-login-button {
+    width: auto;
+    padding: 0 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .ms-hero-slide,
+  .ms-hero-slide:only-child {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .ms-tetris-piece {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* =============================================================================
+ * Glass pass (2026-08-09)
+ *
+ * Extiende el pase de backdrop-blur de 2026-08-01 a todas las superficies:
+ * tarjetas, paneles, cuadros, formularios y botones/CTA.
+ *
+ * Va sin @layer a proposito: el CSS sin capa gana sobre @layer components y
+ * sobre las utilidades de Tailwind, asi que .ms-button-primary y .bg-surface
+ * reciben el vidrio sin tener que subir especificidad ni tocar los .jsx.
+ * ========================================================================== */
+
+.bg-surface,
+.bg-surface-2,
+.ms-panel,
+.ms-nature-panel,
+.ms-nature-tile,
+.ms-button-secondary,
+.ms-filter-toggle,
+.ms-assistant-choices button,
+.ms-assistant-reset,
+.ms-experience-loader-media,
+input,
+select,
+textarea {
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+/* CTA principal: mismo vidrio, pero manteniendo el contraste del dorado sobre
+ * la tinta. .82 de opacidad es el punto donde el texto sigue leyendose sobre
+ * fondo claro y sobre foto. */
+.ms-button-primary {
+  background: var(--ink-glass);
+  backdrop-filter: var(--glass-blur-strong);
+  -webkit-backdrop-filter: var(--glass-blur-strong);
+}
+
+.ms-button-primary:hover {
+  background: var(--ink);
+}
+
+/* Las tarjetas del catalogo llevan encima el patron diagonal de .ms-nature-tile;
+ * al volverse translucidas conviene un pelo mas de borde para que no se
+ * desdibujen contra el fondo crema. */
+.ms-nature-panel,
+.ms-nature-tile,
+.ms-panel {
+  border-color: rgba(22, 32, 22, .18);
+}
+
+/* Superficies que NO deben ser vidrio: el marco del logo y los contenedores de
+ * imagen, donde translucidez solo ensucia la foto. */
+.ms-logo-mark,
+.ms-logo-mark img {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Fallback real: si el navegador no soporta backdrop-filter, las superficies
+ * translucidas dejarian el texto sobre el fondo crema rayado. Se vuelven casi
+ * opacas para que la legibilidad no dependa del efecto. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root {
+    --surface: rgba(255, 255, 255, .94);
+    --surface-2: rgba(251, 248, 237, .94);
+    --ink-glass: var(--ink);
+  }
+}
+
+/* =============================================================================
+ * Home refresh (2026-08-13)
+ *
+ * Una portada editorial y orientada a descubrir experiencias: menos efectos de
+ * superficie y más jerarquía, foto real, búsqueda y colecciones claras.
+ * ========================================================================== */
+
+body {
+  background: var(--bg);
+}
+
+.ms-home-hero {
+  min-height: clamp(500px, 66svh, 650px);
+}
+
+.ms-home-hero .ms-hero-shade {
+  background:
+    linear-gradient(90deg, rgba(12, 25, 17, .84) 0%, rgba(12, 25, 17, .56) 48%, rgba(12, 25, 17, .2) 100%),
+    linear-gradient(0deg, rgba(12, 25, 17, .68), transparent 52%);
+}
+
+.ms-home-hero-content {
+  align-content: center;
+  gap: 28px;
+  padding: 52px 0;
+}
+
+.ms-home-hero-copy {
+  max-width: 680px;
+}
+
+.ms-home-hero-copy .ms-eyebrow {
+  color: var(--gold);
+}
+
+.ms-home-hero-copy h1 {
+  margin: 0;
+  color: #fff;
+  font-family: var(--serif);
+  font-size: clamp(48px, 6.6vw, 76px);
+  font-weight: 400;
+  letter-spacing: -.035em;
+  line-height: .96;
+}
+
+.ms-home-hero-copy > p:last-child {
+  max-width: 590px;
+  margin: 20px 0 0;
+  color: rgba(255, 255, 255, .88);
+  font-size: clamp(16px, 1.8vw, 19px);
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+.ms-catalog-search-hero {
+  width: min(100%, 1080px);
+  border: 1px solid rgba(255, 255, 255, .56);
+  background: rgba(255, 253, 247, .96);
+  border-radius: 16px;
+  box-shadow: 0 18px 52px rgba(4, 13, 8, .24);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.ms-catalog-search-hero .ms-control-shell input,
+.ms-catalog-search-hero .ms-control-shell select {
+  background: #f6f3ea;
+}
+
+.ms-catalog-search-hero .ms-button-primary {
+  min-height: 48px;
+  background: var(--ink);
+  color: var(--gold);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.ms-home-trust {
+  display: flex;
+  min-height: 62px;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  border-bottom: 1px solid var(--line);
+  background: #fffdf7;
+  color: var(--ink);
+}
+
+.ms-home-trust span {
+  padding: 0 28px;
+  border-right: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .015em;
+}
+
+.ms-home-trust span:last-child {
+  border-right: 0;
+}
+
+.ms-flyer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(16, 26, 18, 0);
+  opacity: 0;
+  transition: background-color .28s ease, opacity .28s ease;
+  pointer-events: none;
+}
+
+.ms-flyer-backdrop.is-visible {
+  background: rgba(16, 26, 18, .6);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ms-flyer-card {
+  position: relative;
+  display: grid;
+  width: min(380px, 100%);
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  background: var(--shell);
+  box-shadow: 0 24px 60px rgba(16, 26, 18, .35);
+  transform: translateY(14px) scale(.97);
+  transition: transform .28s var(--ease-out);
+}
+
+.ms-flyer-backdrop.is-visible .ms-flyer-card {
+  transform: translateY(0) scale(1);
+}
+
+.ms-flyer-close {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  z-index: 1;
+  display: grid;
+  height: 30px;
+  width: 30px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(16, 26, 18, .55);
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.ms-flyer-close:hover {
+  background: rgba(16, 26, 18, .8);
+}
+
+.ms-flyer-media {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.ms-flyer-media img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+.ms-flyer-body {
+  display: grid;
+  gap: 8px;
+  padding: 20px 22px 22px;
+}
+
+.ms-flyer-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  color: var(--green);
+  text-transform: uppercase;
+}
+
+.ms-flyer-body h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1.15;
+  color: var(--ink);
+}
+
+.ms-flyer-body p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+
+.ms-home-page {
+  padding-top: 66px;
+}
+
+.ms-home-section {
+  margin-bottom: 84px;
+}
+
+.ms-home-section-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.ms-home-section-head .ms-eyebrow {
+  margin-bottom: 8px;
+}
+
+.ms-home-section-head h2 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: clamp(34px, 4vw, 49px);
+  font-weight: 400;
+  letter-spacing: -.025em;
+  line-height: 1;
+}
+
+.ms-home-text-link {
+  flex: none;
+  color: var(--green);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.ms-home-text-link:hover {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.ms-home-interest-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.ms-home-interest-card {
+  position: relative;
+  min-height: 270px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 14px;
+  background: var(--ink);
+  padding: 0;
+  color: #fff;
+  text-align: left;
+}
+
+.ms-home-interest-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10, 22, 14, .08) 24%, rgba(10, 22, 14, .84) 100%);
+}
+
+.ms-home-interest-card img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .45s ease;
+}
+
+.ms-home-interest-card:hover img {
+  transform: scale(1.03);
+}
+
+.ms-home-interest-card > span {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  left: 18px;
+  z-index: 1;
+}
+
+.ms-home-interest-card strong,
+.ms-home-interest-card small {
+  display: block;
+}
+
+.ms-home-interest-card strong {
+  font-family: var(--serif);
+  font-size: 25px;
+  font-weight: 400;
+  line-height: .98;
+}
+
+.ms-home-interest-card small {
+  margin-top: 8px;
+  color: rgba(255, 255, 255, .8);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.ms-home-section .ms-tetris-grid {
+  perspective: none;
+}
+
+.ms-home-section .ms-tetris-piece,
+.ms-home-section .ms-tetris-piece.is-landed {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+  animation: none;
+}
+
+.ms-experience-card {
+  border-color: rgba(22, 32, 22, .16);
+  border-radius: 14px;
+  background: #fffdf8;
+  box-shadow: 0 2px 8px rgba(22, 32, 22, .05);
+}
+
+.ms-experience-card:hover {
+  border-color: rgba(31, 107, 61, .36);
+  box-shadow: 0 18px 38px rgba(22, 32, 22, .13);
+}
+
+.ms-experience-card-image {
+  height: 236px;
+}
+
+.ms-experience-card-content {
+  padding: 18px;
+}
+
+.ms-experience-card-content h3 {
+  min-height: 48px;
+  font-size: 22px;
+}
+
+.ms-experience-card-meta {
+  min-height: 34px;
+  padding-top: 11px;
+  border-top: 1px solid rgba(22, 32, 22, .1);
+}
+
+.ms-home-collection-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.ms-home-collection {
+  position: relative;
+  display: grid;
+  min-height: 440px;
+  align-items: end;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--ink);
+  color: #fff;
+}
+
+.ms-home-collection::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(10, 22, 14, .89) 0%, rgba(10, 22, 14, .5) 65%, rgba(10, 22, 14, .24) 100%);
+}
+
+.ms-home-collection > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ms-home-collection-content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  max-width: 470px;
+  gap: 14px;
+  padding: 30px;
+}
+
+.ms-home-collection-content .ms-eyebrow {
+  margin: 0;
+}
+
+.ms-home-collection h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(32px, 3.2vw, 43px);
+  font-weight: 400;
+  letter-spacing: -.025em;
+  line-height: .98;
+}
+
+.ms-home-collection p:not(.ms-eyebrow) {
+  margin: 0;
+  color: rgba(255, 255, 255, .83);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ms-home-collection-list {
+  display: grid;
+  gap: 7px;
+}
+
+.ms-home-collection-list a {
+  overflow: hidden;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ms-home-collection-list a:hover {
+  color: var(--gold);
+}
+
+.ms-home-collection .ms-button-secondary {
+  border-color: rgba(255, 255, 255, .55);
+  background: rgba(255, 255, 255, .08);
+  color: #fff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.ms-home-collection .ms-button-secondary:hover {
+  border-color: #fff;
+  background: rgba(255, 255, 255, .17);
+}
+
+@media (max-width: 1080px) {
+  .ms-home-interest-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .ms-home-interest-card {
+    min-height: 235px;
+  }
+}
+
+@media (max-width: 700px) {
+  .ms-home-hero {
+    min-height: 620px;
+  }
+
+  .ms-home-hero-content {
+    align-content: end;
+    padding: 42px 0 26px;
+  }
+
+  .ms-home-hero-copy h1 {
+    font-size: 49px;
+  }
+
+  .ms-home-hero-copy > p:last-child {
+    font-size: 16px;
+  }
+
+  .ms-catalog-search-hero {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .ms-home-trust {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: stretch;
+    padding: 9px 18px;
+  }
+
+  .ms-home-trust span {
+    padding: 9px 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    text-align: center;
+  }
+
+  .ms-home-trust span:last-child {
+    border-bottom: 0;
+  }
+
+  .ms-home-page {
+    padding-top: 44px;
+  }
+
+  .ms-home-section {
+    margin-bottom: 58px;
+  }
+
+  .ms-home-section-head {
+    display: grid;
+    align-items: start;
+    gap: 14px;
+  }
+
+  .ms-home-section-head h2 {
+    font-size: 37px;
+  }
+
+  .ms-home-interest-grid,
+  .ms-home-collection-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ms-home-interest-card {
+    min-height: 220px;
+  }
+
+  .ms-home-collection {
+    min-height: 400px;
+  }
+
+  .ms-home-collection-content {
+    padding: 24px;
+  }
+
+  .ms-experience-card-image {
+    height: 225px;
+  }
+}

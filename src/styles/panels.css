@@ -1,0 +1,1713 @@
+/* =============================================================================
+ * Paneles 2026-08-20
+ *
+ * Acceso (cliente y admin), consola de usuario y de admin, calendario de
+ * reservas, flujo de reserva, vlog y asistente. Se carga despues de
+ * ui-kit.css.
+ * ========================================================================== */
+
+/* --- 1. Acceso ----------------------------------------------------------- */
+
+.ms-auth {
+  display: grid;
+  grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+  max-width: 1080px;
+  margin: 24px auto;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .55);
+  border-radius: var(--r-xl);
+  background: rgba(255, 253, 247, .66);
+  backdrop-filter: blur(22px) saturate(1.6);
+  -webkit-backdrop-filter: blur(22px) saturate(1.6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8), var(--sh-3);
+}
+
+.ms-auth-cover {
+  position: relative;
+  display: flex;
+  min-height: 600px;
+  align-items: flex-end;
+  background: var(--ink);
+}
+
+.ms-auth-cover > img {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  opacity: .82;
+}
+
+.ms-auth-cover-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(8, 16, 10, .94) 4%, rgba(8, 16, 10, .46) 54%, rgba(8, 16, 10, .16) 100%);
+}
+
+.ms-auth[data-tone="admin"] .ms-auth-cover-scrim {
+  background: linear-gradient(0deg, rgba(8, 16, 10, .95) 4%, rgba(8, 16, 10, .54) 54%, rgba(8, 16, 10, .22) 100%);
+}
+
+.ms-auth-cover-body {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  padding: 34px;
+  color: rgba(255, 255, 255, .78);
+}
+
+.ms-auth-cover-body h2 {
+  max-width: 12ch;
+  margin: 0;
+  color: #fff;
+  font-family: var(--serif);
+  font-size: clamp(32px, 3.6vw, 46px);
+  font-weight: 400;
+  letter-spacing: -.035em;
+  line-height: .98;
+}
+
+.ms-auth-cover-body p {
+  max-width: 40ch;
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+
+.ms-auth-perks {
+  display: grid;
+  gap: 9px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ms-auth-perks li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: rgba(255, 255, 255, .88);
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.ms-auth-perks i {
+  display: grid;
+  height: 19px;
+  width: 19px;
+  flex: none;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(240, 182, 47, .2);
+  color: var(--gold);
+}
+
+.ms-auth-panel {
+  display: grid;
+  align-content: center;
+  gap: 20px;
+  padding: clamp(26px, 4vw, 48px);
+}
+
+.ms-auth-head h1 {
+  margin: 6px 0 0;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: clamp(30px, 3.6vw, 46px);
+  font-weight: 400;
+  letter-spacing: -.035em;
+  line-height: 1;
+}
+
+.ms-auth-lead {
+  max-width: 48ch;
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.ms-auth-form {
+  display: grid;
+  gap: 16px;
+}
+
+.ms-auth-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.ms-auth-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  border: 1px solid rgba(28, 96, 57, .24);
+  border-radius: var(--r-md);
+  background: rgba(28, 96, 57, .08);
+  padding: 13px 15px;
+  color: var(--green);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.ms-auth-note svg {
+  flex: none;
+  margin-top: 1px;
+}
+
+.ms-auth-note strong {
+  display: block;
+  color: var(--ink);
+}
+
+.ms-auth-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  border-top: 1px solid rgba(16, 26, 18, .1);
+  padding-top: 16px;
+  color: var(--muted);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.ms-auth-foot a {
+  color: var(--green);
+  font-weight: 700;
+}
+
+.ms-auth-foot a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.ms-auth-legal {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.55;
+  text-transform: none;
+}
+
+.ms-auth-legal input {
+  margin-top: 3px;
+  height: 17px;
+  min-height: 0;
+  width: 17px;
+  flex: none;
+  accent-color: var(--green);
+}
+
+.ms-auth-legal a {
+  color: var(--green);
+  font-weight: 700;
+}
+
+.ms-auth-legal a:hover {
+  text-decoration: underline;
+}
+
+.ms-auth-legal small {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  .ms-auth {
+    grid-template-columns: 1fr;
+    margin: 12px auto;
+  }
+
+  .ms-auth-cover {
+    min-height: 260px;
+  }
+
+  .ms-auth-cover-body {
+    padding: 24px;
+  }
+
+  .ms-auth-perks {
+    display: none;
+  }
+
+  .ms-auth-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- 2. Campo de texto con etiqueta flotante ---------------------------- */
+
+.ms-textfield {
+  display: grid;
+  gap: 6px;
+}
+
+.ms-textfield-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ms-textfield-box input {
+  min-height: 56px;
+  border: 1px solid rgba(255, 255, 255, .5);
+  border-radius: var(--r-sm);
+  background: rgba(255, 253, 247, .5);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8);
+  padding: 20px 14px 6px;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 600;
+  transition: border-color .2s ease, box-shadow .24s ease, background-color .2s ease;
+}
+
+.ms-textfield-icon ~ input {
+  padding-left: 42px;
+}
+
+.ms-textfield-box:has(.ms-textfield-reveal) input {
+  padding-right: 44px;
+}
+
+.ms-textfield-box input:focus {
+  border-color: var(--green);
+  background: var(--shell);
+  box-shadow: 0 0 0 3px rgba(28, 96, 57, .15);
+  outline: none;
+}
+
+.ms-textfield-box label {
+  position: absolute;
+  top: 50%;
+  left: 15px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  pointer-events: none;
+  text-transform: none;
+  transform: translateY(-50%);
+  transform-origin: left center;
+  transition: transform .18s var(--ease-out), color .18s ease;
+}
+
+.ms-textfield-icon ~ input ~ label {
+  left: 42px;
+}
+
+.ms-textfield-box input:focus + label,
+.ms-textfield-box input:not(:placeholder-shown) + label {
+  color: var(--green);
+  transform: translateY(-168%) scale(.78);
+}
+
+.ms-textfield-icon {
+  position: absolute;
+  left: 15px;
+  z-index: 1;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.ms-textfield-box:focus-within .ms-textfield-icon {
+  color: var(--green);
+}
+
+.ms-textfield-reveal {
+  position: absolute;
+  right: 8px;
+  display: grid;
+  height: 32px;
+  width: 32px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--muted);
+  transition: background-color .16s ease, color .16s ease;
+}
+
+.ms-textfield-reveal:hover {
+  background: rgba(16, 26, 18, .07);
+  color: var(--ink);
+}
+
+.ms-textfield[data-invalid] .ms-textfield-box input {
+  border-color: var(--red);
+}
+
+.ms-textfield-error,
+.ms-textfield-hint {
+  margin: 0;
+  padding-left: 3px;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.ms-textfield-error { color: var(--red); }
+.ms-textfield-hint { color: var(--muted); }
+
+.ms-strength {
+  display: grid;
+  gap: 5px;
+}
+
+.ms-strength-track {
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(16, 26, 18, .1);
+}
+
+.ms-strength-track i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--red);
+  transition: width .3s var(--ease-out), background-color .3s ease;
+}
+
+.ms-strength[data-level="mid"] .ms-strength-track i { background: var(--warn); }
+.ms-strength[data-level="high"] .ms-strength-track i { background: var(--green); }
+
+.ms-strength small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* --- 3. Consola (panel de cliente y de admin) --------------------------- */
+
+.ms-console {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 22px;
+  padding-top: 8px;
+}
+
+.ms-console-side {
+  position: sticky;
+  top: 90px;
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  align-self: start;
+  overflow: hidden;
+  border: 1px solid rgba(240, 182, 47, .18);
+  border-radius: var(--r-lg);
+  background:
+    radial-gradient(120% 70% at 10% 0%, rgba(28, 96, 57, .4) 0%, transparent 62%),
+    var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), var(--sh-2);
+  padding: 18px 14px;
+}
+
+.ms-console[data-tone="admin"] .ms-console-side {
+  background:
+    radial-gradient(120% 70% at 10% 0%, rgba(14, 116, 128, .42) 0%, transparent 62%),
+    var(--ink);
+}
+
+.ms-console-identity {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  border-bottom: 1px solid rgba(255, 255, 255, .12);
+  padding: 2px 6px 16px;
+}
+
+.ms-console-identity strong {
+  display: block;
+  overflow: hidden;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ms-console-identity small {
+  display: block;
+  overflow: hidden;
+  color: rgba(255, 255, 255, .55);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ms-console-avatar {
+  display: grid;
+  height: 42px;
+  width: 42px;
+  flex: none;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(240, 182, 47, .38);
+  border-radius: 50%;
+  background: rgba(240, 182, 47, .14);
+  color: var(--gold);
+}
+
+.ms-console-avatar img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+.ms-console-nav {
+  display: grid;
+  gap: 3px;
+}
+
+.ms-console-group {
+  display: grid;
+  gap: 3px;
+}
+
+.ms-console-group + .ms-console-group {
+  margin-top: 12px;
+}
+
+.ms-console-group p {
+  margin: 0 0 4px;
+  padding: 0 10px;
+  color: rgba(255, 255, 255, .38);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.ms-console-link {
+  position: relative;
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  gap: 11px;
+  border-radius: var(--r-sm);
+  padding: 0 12px;
+  color: rgba(255, 255, 255, .72);
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color .18s ease, color .18s ease;
+}
+
+.ms-console-link svg {
+  flex: none;
+  color: rgba(255, 255, 255, .5);
+  transition: color .2s ease;
+}
+
+.ms-console-link:hover {
+  background: rgba(255, 255, 255, .08);
+  color: #fff;
+}
+
+.ms-console-link:hover svg {
+  color: var(--gold);
+}
+
+.ms-console-link.is-active {
+  background: rgba(240, 182, 47, .16);
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.ms-console-link.is-active svg {
+  color: var(--gold);
+}
+
+.ms-console-link.is-active::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -14px;
+  height: 20px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--gold);
+  transform: translateY(-50%);
+}
+
+.ms-console-signout {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, .2);
+  border-radius: var(--pill);
+  background: rgba(255, 255, 255, .06);
+  color: rgba(255, 255, 255, .8);
+  font-size: 13.5px;
+  font-weight: 700;
+  transition: border-color .2s ease, background-color .2s ease, color .2s ease;
+}
+
+.ms-console-signout:hover {
+  border-color: var(--red);
+  background: rgba(196, 71, 50, .18);
+  color: #fff;
+}
+
+.ms-console-main {
+  min-width: 0;
+}
+
+@media (max-width: 1080px) {
+  .ms-console {
+    grid-template-columns: 1fr;
+  }
+
+  .ms-console-side {
+    position: static;
+    gap: 12px;
+  }
+
+  .ms-console-nav {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .ms-console-group {
+    display: contents;
+  }
+
+  .ms-console-group p {
+    display: none;
+  }
+
+  .ms-console-link {
+    white-space: nowrap;
+  }
+
+  .ms-console-link.is-active::before {
+    content: none;
+  }
+}
+
+/* --- 4. Cabecera y metricas de pantalla --------------------------------- */
+
+.ms-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid rgba(255, 255, 255, .55);
+  border-radius: var(--r-lg);
+  background: rgba(255, 253, 247, .58);
+  backdrop-filter: blur(18px) saturate(1.5);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .75), var(--sh-1);
+  padding: 22px 24px;
+}
+
+.ms-panel-head h1 {
+  margin: 6px 0 0;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: clamp(28px, 3.4vw, 42px);
+  font-weight: 400;
+  letter-spacing: -.032em;
+  line-height: 1.02;
+}
+
+.ms-panel-head-lead {
+  max-width: 62ch;
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+
+.ms-panel-head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ms-metric-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.ms-metric {
+  display: grid;
+  gap: 6px;
+  border: 1px solid rgba(255, 255, 255, .55);
+  border-radius: var(--r-md);
+  background: rgba(255, 253, 247, .5);
+  backdrop-filter: blur(18px) saturate(1.5);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8), var(--sh-1);
+  padding: 16px 18px;
+}
+
+.ms-metric span {
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.ms-metric strong {
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -.03em;
+  line-height: 1;
+}
+
+.ms-metric[data-tone="warn"] strong {
+  color: var(--warn);
+}
+
+.ms-section-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ms-section-bar h2 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: clamp(22px, 2.4vw, 30px);
+  font-weight: 500;
+  letter-spacing: -.025em;
+}
+
+.ms-admin-row,
+.ms-booking-row {
+  display: grid;
+  gap: 12px;
+  border: 1px solid rgba(16, 26, 18, .1);
+  border-radius: var(--r-md);
+  background: rgba(255, 253, 247, .78);
+  padding: 14px 16px;
+  font-size: 13.5px;
+  transition: border-color .18s ease;
+}
+
+.ms-admin-row:hover,
+.ms-booking-row:hover {
+  border-color: rgba(28, 96, 57, .26);
+}
+
+@media (min-width: 768px) {
+  .ms-booking-row {
+    grid-template-columns: 1.6fr .8fr .8fr .9fr .9fr;
+    align-items: center;
+  }
+}
+
+@media (min-width: 1280px) {
+  .ms-admin-row {
+    align-items: center;
+  }
+}
+
+.ms-minibar {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(16, 26, 18, .09);
+}
+
+.ms-minibar span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transition: width .5s var(--ease-out);
+}
+
+/* --- 5. Calendario de reservas ------------------------------------------ */
+
+.ms-booking-calendar {
+  display: grid;
+  grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+  align-items: start;
+  gap: 16px;
+}
+
+.ms-booking-calendar-month {
+  padding: 18px;
+}
+
+.ms-booking-calendar-day {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  min-height: 320px;
+  padding: 20px;
+}
+
+.ms-booking-calendar-day > header {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  border-bottom: 1px solid rgba(16, 26, 18, .1);
+  padding-bottom: 13px;
+  color: var(--green);
+}
+
+.ms-booking-calendar-day header strong {
+  display: block;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+
+.ms-booking-calendar-day header small {
+  display: block;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.ms-day-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ms-day-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(16, 26, 18, .1);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  padding: 12px 14px;
+  transition: border-color .18s ease;
+}
+
+.ms-day-row:hover {
+  border-color: rgba(28, 96, 57, .3);
+}
+
+.ms-day-row > img {
+  height: 42px;
+  width: 42px;
+  flex: none;
+  border-radius: 9px;
+  object-fit: cover;
+}
+
+.ms-day-row > div {
+  flex: 1;
+}
+
+.ms-day-row strong {
+  display: block;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ms-day-row small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ms-day-guests {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: var(--pill);
+  background: rgba(28, 96, 57, .1);
+  padding: 4px 10px;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ms-day-link {
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.ms-day-link[data-tone="gold"] {
+  color: var(--gold-2);
+}
+
+.ms-day-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.ms-day-empty {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 6px;
+  min-height: 180px;
+  border: 1px dashed rgba(16, 26, 18, .16);
+  border-radius: var(--r-md);
+  padding: 20px;
+  text-align: center;
+}
+
+.ms-day-empty strong {
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 500;
+}
+
+.ms-day-empty p {
+  max-width: 34ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+@media (max-width: 1080px) {
+  .ms-booking-calendar {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- 6. Flujo de reserva ------------------------------------------------ */
+
+.ms-stacked-field {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+/* El calendario flotante no puede quedar recortado por el panel que lo
+ * contiene, asi que estos dos contenedores no recortan su contenido. */
+.ms-booking-form,
+.ms-reserve-widget {
+  overflow: visible;
+}
+
+.ms-booking-form > div:first-child {
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+}
+
+.ms-reserve-lead {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.ms-reserve-total {
+  display: grid;
+  gap: 3px;
+  border: 1px solid rgba(14, 116, 128, .26);
+  border-radius: var(--r-md);
+  background: rgba(14, 116, 128, .07);
+  padding: 15px 16px;
+}
+
+.ms-reserve-total span {
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.ms-reserve-total strong {
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: -.03em;
+  line-height: 1;
+}
+
+.ms-reserve-total small {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.ms-next-trip {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(240, 182, 47, .28);
+  border-radius: var(--r-lg);
+  background:
+    radial-gradient(90% 170% at 92% 8%, rgba(240, 182, 47, .16) 0%, transparent 58%),
+    radial-gradient(80% 150% at 4% 96%, rgba(28, 96, 57, .36) 0%, transparent 62%),
+    var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), var(--sh-2);
+  padding: 18px 22px;
+  color: rgba(255, 255, 255, .74);
+}
+
+.ms-next-trip > img {
+  height: 68px;
+  width: 68px;
+  flex: none;
+  border-radius: var(--r-md);
+  object-fit: cover;
+}
+
+.ms-next-trip > div {
+  flex: 1;
+  min-width: 200px;
+}
+
+.ms-next-trip h2 {
+  margin: 4px 0 3px;
+  color: #fff;
+  font-family: var(--serif);
+  font-size: clamp(21px, 2.4vw, 28px);
+  font-weight: 500;
+  letter-spacing: -.025em;
+  line-height: 1.05;
+}
+
+.ms-next-trip p:not(.ms-eyebrow) {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+/* --- 7. Vlog ------------------------------------------------------------- */
+
+.ms-vlog-hero {
+  display: grid;
+  gap: 22px;
+  padding: clamp(28px, 5vw, 56px) 0 clamp(24px, 4vw, 40px);
+}
+
+.ms-vlog-intro {
+  display: grid;
+  max-width: 720px;
+  gap: 14px;
+}
+
+.ms-vlog-intro h1 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: clamp(38px, 6vw, 72px);
+  font-weight: 400;
+  letter-spacing: -.042em;
+  line-height: .96;
+}
+
+.ms-vlog-lead {
+  max-width: 56ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(15.5px, 1.5vw, 18px);
+  line-height: 1.62;
+}
+
+.ms-vlog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.ms-vlog-frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid rgba(16, 26, 18, .14);
+  border-radius: var(--r-xl);
+  background: var(--ink);
+  box-shadow: var(--sh-3);
+}
+
+.ms-vlog-frame iframe {
+  height: 100%;
+  width: 100%;
+  border: 0;
+}
+
+.ms-vlog-facade {
+  cursor: pointer;
+  padding: 0;
+}
+
+.ms-vlog-facade img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+.ms-vlog-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(0deg, rgba(8, 16, 10, .62) 0%, rgba(8, 16, 10, .14) 46%, rgba(8, 16, 10, .32) 100%);
+  transition: opacity .4s ease;
+}
+
+.ms-vlog-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  transform: translate(-50%, -50%);
+}
+
+.ms-vlog-play svg {
+  display: block;
+  height: 74px;
+  width: 74px;
+  border: 1px solid rgba(255, 255, 255, .5);
+  border-radius: 50%;
+  background: var(--gold);
+  padding: 22px 20px 22px 26px;
+  color: var(--ink);
+  transition: background-color .2s ease;
+}
+
+.ms-vlog-facade:hover .ms-vlog-play svg {
+  background: #ffd058;
+}
+
+.ms-vlog-play em {
+  border-radius: var(--pill);
+  background: rgba(8, 16, 10, .58);
+  backdrop-filter: blur(8px);
+  padding: 7px 16px;
+  color: #fff;
+  font-size: 12.5px;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.ms-vlog-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.ms-vlog-note svg {
+  flex: none;
+  color: var(--red);
+}
+
+.ms-vlog-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  border-top: 1px solid var(--line);
+  padding-top: clamp(28px, 4vw, 48px);
+}
+
+.ms-vlog-links article {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  border: 1px solid rgba(16, 26, 18, .1);
+  border-radius: var(--r-lg);
+  background: rgba(255, 253, 247, .8);
+  box-shadow: var(--sh-1);
+  padding: 24px;
+}
+
+.ms-vlog-links h2 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -.025em;
+}
+
+.ms-vlog-links p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+
+.ms-vlog-links .ms-home-text-link {
+  justify-self: start;
+}
+
+@media (max-width: 780px) {
+  .ms-vlog-links {
+    grid-template-columns: 1fr;
+  }
+
+  .ms-vlog-play svg {
+    height: 60px;
+    width: 60px;
+    padding: 17px 15px 17px 21px;
+  }
+}
+
+/* --- 8. Ajuste de la etiqueta flotante ---------------------------------- */
+
+/* La etiqueta sube hasta el hueco que deja el padding superior del input, no
+ * por encima del borde: flotando fuera de la caja quedaba partida por el filete. */
+.ms-textfield-box input:focus + label,
+.ms-textfield-box input:not(:placeholder-shown) + label {
+  color: var(--green);
+  transform: translateY(-76%) scale(.78);
+}
+
+/* --- 9. Asistente de viaje ---------------------------------------------- */
+
+.ms-assistant-trigger {
+  min-height: 48px;
+  border: 1px solid rgba(240, 182, 47, .4);
+  border-radius: var(--pill);
+  background:
+    radial-gradient(130% 190% at 50% -55%, rgba(255, 255, 255, .12) 0%, transparent 62%),
+    var(--ink);
+  box-shadow: var(--sh-2);
+  padding: 0 18px;
+  color: var(--gold);
+  font-size: 14px;
+  font-weight: 700;
+  transition: background-color .18s ease, border-color .18s ease;
+}
+
+.ms-assistant-trigger:hover {
+  border-color: var(--gold);
+  color: #ffd979;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .14),
+    0 0 0 1px rgba(240, 182, 47, .3),
+    0 10px 30px rgba(240, 182, 47, .26);
+  transform: none;
+}
+
+.ms-assistant-panel {
+  width: min(400px, calc(100vw - 28px));
+  border: 1px solid rgba(255, 255, 255, .55);
+  border-radius: var(--r-lg);
+  background: rgba(255, 253, 247, .78);
+  backdrop-filter: blur(26px) saturate(1.7);
+  -webkit-backdrop-filter: blur(26px) saturate(1.7);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8), var(--sh-3);
+}
+
+.ms-assistant-panel header {
+  gap: 12px;
+  border-bottom: 0;
+  background: var(--ink);
+  padding: 16px 16px 15px;
+}
+
+.ms-assistant-panel header strong {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.ms-assistant-panel header small {
+  color: rgba(255, 255, 255, .58);
+  font-size: 12px;
+}
+
+.ms-assistant-mark {
+  height: 36px;
+  width: 36px;
+  border: 1px solid rgba(240, 182, 47, .4);
+  background: rgba(240, 182, 47, .16);
+  color: var(--gold);
+}
+
+.ms-assistant-body {
+  gap: 16px;
+  background: transparent;
+  padding: 18px 16px;
+}
+
+/* Burbuja del asistente: lo que dice el bot va en una nube, no suelto. */
+.ms-assistant-message {
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--green);
+}
+
+.ms-assistant-message p {
+  border: 1px solid rgba(16, 26, 18, .1);
+  border-radius: 4px 14px 14px 14px;
+  background: var(--shell);
+  box-shadow: var(--sh-1);
+  padding: 11px 14px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.ms-assistant-choices {
+  gap: 7px;
+}
+
+.ms-assistant-choices button {
+  min-height: 44px;
+  border: 1px solid rgba(16, 26, 18, .14);
+  border-radius: var(--r-sm);
+  background: var(--shell);
+  padding: 9px 12px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  transition: border-color .16s ease, background-color .16s ease;
+}
+
+.ms-assistant-choices button:hover {
+  border-color: var(--green);
+  background: rgba(28, 96, 57, .08);
+  transform: none;
+}
+
+.ms-assistant-results {
+  gap: 8px;
+}
+
+.ms-assistant-results a {
+  grid-template-columns: 54px minmax(0, 1fr) auto;
+  gap: 11px;
+  border: 1px solid rgba(16, 26, 18, .12);
+  border-bottom: 1px solid rgba(16, 26, 18, .12);
+  border-radius: var(--r-sm);
+  background: var(--shell);
+  padding: 9px 11px;
+  transition: border-color .16s ease;
+}
+
+.ms-assistant-results a:last-child {
+  border-bottom: 1px solid rgba(16, 26, 18, .12);
+}
+
+.ms-assistant-results a:hover {
+  border-color: var(--green);
+}
+
+.ms-assistant-results img {
+  height: 46px;
+  width: 54px;
+  border-radius: 8px;
+}
+
+.ms-assistant-results strong {
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.ms-assistant-results b {
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.ms-assistant-reset {
+  border-color: rgba(16, 26, 18, .14);
+  border-radius: var(--pill);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.ms-assistant-reset:hover {
+  border-color: var(--green);
+  background: rgba(28, 96, 57, .08);
+}
+
+/* --- 10. Pasos de la reserva -------------------------------------------- */
+
+.ms-stepper {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 20px 0 24px;
+}
+
+.ms-step {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  align-items: center;
+  gap: 4px 10px;
+  border: 1px solid rgba(16, 26, 18, .12);
+  border-radius: var(--r-md);
+  background: rgba(255, 253, 247, .7);
+  padding: 12px 14px;
+}
+
+.ms-step i {
+  display: grid;
+  grid-row: 1 / span 2;
+  height: 26px;
+  width: 26px;
+  place-items: center;
+  border: 1px solid rgba(16, 26, 18, .2);
+  border-radius: 50%;
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.ms-step strong {
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.ms-step small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.ms-step[data-state="active"] {
+  border-color: rgba(240, 182, 47, .5);
+  background: var(--ink);
+}
+
+.ms-step[data-state="active"] i {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.ms-step[data-state="active"] strong { color: var(--gold); }
+.ms-step[data-state="active"] small { color: rgba(255, 255, 255, .6); }
+
+.ms-step[data-state="done"] i {
+  border-color: var(--green);
+  background: var(--green);
+  color: #fff;
+}
+
+@media (max-width: 700px) {
+  .ms-stepper {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- 11. Paneles en movil: navegacion tipo app --------------------------- */
+
+/* Avatar de cuenta en la cabecera. Sustituye al texto "Admin" / nombre, que se
+ * cortaba en movil y no aportaba nada que el circulo no diga. */
+.ms-account-avatar {
+  display: grid;
+  height: 42px;
+  width: 42px;
+  flex: none;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(240, 182, 47, .45);
+  border-radius: 50%;
+  background: rgba(240, 182, 47, .14);
+  color: var(--gold);
+  transition: border-color .18s ease, background-color .18s ease, box-shadow .28s ease;
+}
+
+.ms-account-avatar img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+.ms-account-avatar:hover {
+  border-color: var(--gold);
+  background: rgba(240, 182, 47, .22);
+  box-shadow: 0 0 0 1px rgba(240, 182, 47, .3), 0 8px 24px rgba(240, 182, 47, .22);
+}
+
+.ms-account-avatar:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+/* La barra de pestanas solo existe en movil. */
+.ms-tabbar,
+.ms-tabsheet,
+.ms-tabsheet-veil {
+  display: none;
+}
+
+@media (max-width: 1080px) {
+  /* La barra lateral oscura se retira: su sitio lo ocupa la barra inferior. */
+  .ms-console-side {
+    display: none;
+  }
+
+  .ms-console {
+    gap: 0;
+    padding-top: 0;
+  }
+
+  /* Hueco para que la ultima tarjeta no quede debajo de las pestanas. */
+  .ms-console-main {
+    padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .ms-tabbar {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 80;
+    display: grid;
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+    border-top: 1px solid rgba(240, 182, 47, .22);
+    background:
+      radial-gradient(120% 150% at 12% 100%, rgba(28, 96, 57, .38) 0%, transparent 58%),
+      var(--ink);
+    box-shadow: 0 -8px 28px rgba(6, 12, 8, .22);
+    padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .ms-tab {
+    display: grid;
+    gap: 4px;
+    justify-items: center;
+    border-radius: var(--r-sm);
+    padding: 7px 4px;
+    color: rgba(255, 255, 255, .66);
+    font-size: 10.5px;
+    font-weight: 600;
+    line-height: 1.15;
+    text-align: center;
+    transition: color .18s ease, background-color .18s ease;
+  }
+
+  .ms-tab span {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ms-tab svg {
+    flex: none;
+  }
+
+  .ms-tab.is-active {
+    background: rgba(240, 182, 47, .16);
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  /* Hoja del boton "Mas". */
+  .ms-tabsheet-veil {
+    position: fixed;
+    inset: 0;
+    z-index: 79;
+    display: block;
+    background: rgba(6, 12, 8, .5);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    animation: ms-veil-in .2s ease both;
+  }
+
+  .ms-tabsheet {
+    position: fixed;
+    right: 8px;
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+    left: 8px;
+    z-index: 81;
+    display: grid;
+    gap: 10px;
+    border: 1px solid rgba(240, 182, 47, .22);
+    border-radius: var(--r-lg);
+    background:
+      radial-gradient(110% 90% at 8% 0%, rgba(28, 96, 57, .4) 0%, transparent 60%),
+      var(--ink);
+    box-shadow: 0 20px 60px rgba(6, 12, 8, .5);
+    padding: 14px;
+    animation: ms-sheet-in .24s var(--ease-out) both;
+  }
+
+  .ms-tabsheet header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, .12);
+    padding-bottom: 10px;
+    color: #fff;
+  }
+
+  .ms-tabsheet header strong {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+
+  .ms-tabsheet header button {
+    display: grid;
+    height: 34px;
+    width: 34px;
+    place-items: center;
+    border-radius: 50%;
+    color: rgba(255, 255, 255, .7);
+  }
+
+  .ms-tabsheet-list {
+    display: grid;
+    gap: 3px;
+  }
+
+  .ms-tabsheet-list a,
+  .ms-tabsheet-signout {
+    display: flex;
+    min-height: 46px;
+    align-items: center;
+    gap: 12px;
+    border-radius: var(--r-sm);
+    padding: 0 12px;
+    color: rgba(255, 255, 255, .8);
+    font-size: 14.5px;
+    font-weight: 600;
+    text-align: left;
+  }
+
+  .ms-tabsheet-list a svg,
+  .ms-tabsheet-signout svg {
+    flex: none;
+    color: rgba(255, 255, 255, .5);
+  }
+
+  .ms-tabsheet-list a.is-active {
+    background: rgba(240, 182, 47, .16);
+    color: var(--gold);
+  }
+
+  .ms-tabsheet-list a.is-active svg {
+    color: var(--gold);
+  }
+
+  .ms-tabsheet-signout {
+    margin-top: 6px;
+    border-top: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 0 0 var(--r-sm) var(--r-sm);
+    color: #fff;
+    padding-top: 6px;
+  }
+
+  .ms-tabsheet-signout svg {
+    color: var(--red);
+  }
+
+  /* Ritmo de app: cabecera y tarjetas a ancho completo y sin apreturas. */
+  .ms-panel-head {
+    padding: 18px;
+  }
+
+  .ms-panel-head-actions {
+    width: 100%;
+  }
+
+  .ms-panel-head-actions > * {
+    flex: 1;
+  }
+
+  .ms-metric-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .ms-metric {
+    padding: 14px 15px;
+  }
+
+  .ms-metric strong {
+    font-size: 25px;
+  }
+
+  .ms-booking-calendar-day,
+  .ms-booking-calendar-month {
+    padding: 16px;
+  }
+
+  .ms-next-trip {
+    padding: 16px;
+  }
+
+  .ms-next-trip .ms-button {
+    width: 100%;
+  }
+
+  /* El pie sigue existiendo bajo el panel: se le deja aire para que la barra
+   * de pestanas no le tape la ultima linea. */
+  body:has(.ms-tabbar) .ms-footer-base {
+    padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@keyframes ms-veil-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ms-sheet-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* En movil la marca cede el sitio: queda el emblema -que ya identifica al
+ * sitio- y se gana ancho para el selector de idioma y el avatar, en vez de
+ * dejar el nombre cortado a media palabra. */
+@media (max-width: 560px) {
+  .ms-brand-name {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-tabsheet,
+  .ms-tabsheet-veil {
+    animation: none;
+  }
+}

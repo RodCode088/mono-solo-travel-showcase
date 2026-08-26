@@ -1,0 +1,775 @@
+/* =============================================================================
+ * UI kit interactivo 2026-08-20
+ *
+ * Controles propios que sustituyen a los nativos que no se pueden diseñar:
+ * calendario flotante, menu desplegable, contador de personas y la barra de
+ * busqueda. Se carga despues de design-pass.css.
+ * ========================================================================== */
+
+/* --- Campo base (disparador de calendario y de menu) --------------------- */
+
+.ms-field-shell {
+  position: relative;
+  display: block;
+}
+
+.ms-field-trigger {
+  display: flex;
+  min-height: 48px;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(16, 26, 18, .12);
+  border-radius: var(--r-sm);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .78) 0%, rgba(255, 253, 247, .58) 100%),
+    rgba(255, 253, 247, .4);
+  backdrop-filter: blur(20px) saturate(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .9),
+    inset 0 0 0 1px rgba(255, 255, 255, .4);
+  padding: 0 14px;
+  color: var(--ink-2);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  transition: border-color .2s ease, box-shadow .24s ease, background-color .2s ease, color .2s ease;
+}
+
+.ms-field-trigger > span:first-of-type,
+.ms-field-trigger .ms-field-value {
+  flex: 1;
+  min-width: 0;
+}
+
+.ms-field-trigger[data-filled] {
+  color: var(--ink);
+}
+
+.ms-field-trigger > svg {
+  flex: none;
+  color: var(--green);
+}
+
+.ms-field-trigger:hover {
+  border-color: rgba(28, 96, 57, .34);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .92) 0%, rgba(255, 253, 247, .76) 100%),
+    rgba(255, 253, 247, .55);
+}
+
+.ms-field-trigger:focus-visible,
+.ms-field-trigger[aria-expanded="true"] {
+  border-color: var(--green);
+  background: var(--shell);
+  box-shadow: 0 0 0 3px rgba(28, 96, 57, .15);
+  outline: none;
+}
+
+.ms-field-caret {
+  flex: none;
+  color: var(--muted);
+  transition: transform .24s var(--ease-out);
+}
+
+.ms-field-trigger[aria-expanded="true"] .ms-field-caret {
+  transform: rotate(180deg);
+}
+
+.ms-field-clear {
+  display: grid;
+  height: 20px;
+  width: 20px;
+  flex: none;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(16, 26, 18, .1);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color .18s ease;
+}
+
+.ms-field-clear:hover {
+  background: rgba(196, 71, 50, .2);
+  color: var(--red);
+}
+
+.ms-field-trigger-lg {
+  min-height: 58px;
+}
+
+.ms-field-value {
+  display: grid;
+  line-height: 1.2;
+}
+
+.ms-field-value strong {
+  color: var(--ink);
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+.ms-field-value small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* --- Popover flotante ---------------------------------------------------- */
+
+.ms-popover {
+  position: absolute;
+  z-index: 60;
+  left: 0;
+  min-width: 100%;
+  border: 1px solid rgba(16, 26, 18, .1);
+  border-radius: var(--r-lg);
+  /* Vidrio de verdad, no un velo plano: una base traslucida, encima un
+   * degradado vertical que hace de luz sobre el cristal, y dos filetes -uno
+   * claro por dentro, uno oscuro por fuera- que le dan canto. El desenfoque es
+   * alto (40px) porque un blur corto sobre foto es justo lo que se lee como
+   * barato. La suma de capas deja ~92% de opacidad: sigue siendo legible sobre
+   * las fotos del catalogo. */
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, .97) 0%,
+      rgba(255, 253, 247, .93) 46%,
+      rgba(249, 245, 234, .91) 100%
+    ),
+    rgba(255, 253, 247, .74);
+  backdrop-filter: blur(40px) saturate(1.9);
+  -webkit-backdrop-filter: blur(40px) saturate(1.9);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .95),
+    inset 0 0 0 1px rgba(255, 255, 255, .55),
+    0 2px 8px rgba(16, 26, 18, .06),
+    0 26px 64px rgba(16, 26, 18, .24);
+  animation: ms-popover-in .18s var(--ease-out) both;
+}
+
+.ms-popover[data-placement="bottom"] {
+  top: calc(100% + 8px);
+  transform-origin: top center;
+}
+
+.ms-popover[data-placement="top"] {
+  bottom: calc(100% + 8px);
+  transform-origin: bottom center;
+}
+
+.ms-popover[data-align="end"] {
+  left: auto;
+  right: 0;
+}
+
+@keyframes ms-popover-in {
+  from { opacity: 0; transform: translateY(-4px) scale(.985); }
+  to { opacity: 1; transform: none; }
+}
+
+.ms-popover-calendar {
+  width: min(340px, calc(100vw - 32px));
+  padding: 14px;
+}
+
+.ms-popover-menu {
+  width: max(100%, 260px);
+  max-width: min(380px, calc(100vw - 32px));
+  padding: 6px;
+}
+
+/* --- Calendario ---------------------------------------------------------- */
+
+.ms-calendar-head {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 34px;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.ms-calendar-head strong {
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+  text-align: center;
+}
+
+.ms-calendar-head button {
+  display: grid;
+  height: 34px;
+  width: 34px;
+  place-items: center;
+  border: 1px solid rgba(16, 26, 18, .12);
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--ink);
+  transition: border-color .16s ease, background-color .16s ease;
+}
+
+.ms-calendar-head button:hover {
+  border-color: var(--green);
+  background: rgba(28, 96, 57, .1);
+}
+
+.ms-calendar-weekdays,
+.ms-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.ms-calendar-weekdays {
+  margin-bottom: 4px;
+}
+
+.ms-calendar-weekdays span {
+  padding: 4px 0;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.ms-calendar-day {
+  position: relative;
+  display: grid;
+  aspect-ratio: 1;
+  align-content: center;
+  justify-items: center;
+  gap: 1px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ink-2);
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: background-color .14s ease, color .14s ease, border-color .14s ease;
+}
+
+.ms-calendar-day:hover:not(:disabled) {
+  background: rgba(28, 96, 57, .14);
+}
+
+.ms-calendar-day:disabled {
+  color: rgba(107, 122, 109, .42);
+  cursor: default;
+}
+
+.ms-calendar-day[data-outside] {
+  visibility: hidden;
+}
+
+.ms-calendar-day[data-today] {
+  border-color: rgba(240, 182, 47, .8);
+}
+
+.ms-calendar-day[data-selected] {
+  background: var(--ink);
+  color: var(--gold);
+  border-color: var(--ink);
+}
+
+.ms-calendar-day[data-selected]:hover {
+  background: var(--ink);
+}
+
+/* Cupos del dia: el numero pequeño debajo de la cifra. */
+.ms-calendar-day b {
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--green);
+}
+
+.ms-calendar-day[data-tone="low"] b {
+  color: var(--warn);
+}
+
+.ms-calendar-day[data-selected] b {
+  color: rgba(255, 255, 255, .8);
+}
+
+.ms-calendar-day[data-tone]:not(:disabled) {
+  background: rgba(28, 96, 57, .08);
+}
+
+.ms-calendar-day[data-tone="low"]:not(:disabled) {
+  background: rgba(191, 128, 23, .12);
+}
+
+.ms-calendar-day[data-selected][data-tone] {
+  background: var(--ink);
+}
+
+.ms-calendar-day i[data-dot] {
+  height: 4px;
+  width: 4px;
+  border-radius: 50%;
+  background: var(--green);
+}
+
+.ms-calendar-day i[data-dot="warn"] { background: var(--warn); }
+.ms-calendar-day i[data-dot="red"] { background: var(--red); }
+
+.ms-calendar-foot {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  border-top: 1px solid rgba(16, 26, 18, .1);
+  padding-top: 10px;
+}
+
+.ms-calendar-foot button {
+  flex: 1;
+  min-height: 34px;
+  border: 1px solid rgba(16, 26, 18, .12);
+  border-radius: var(--pill);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 700;
+  transition: border-color .18s ease, background-color .18s ease;
+}
+
+.ms-calendar-foot button:hover {
+  border-color: var(--green);
+  background: rgba(28, 96, 57, .1);
+  color: var(--green);
+}
+
+.ms-calendar-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 0;
+  border-top: 1px solid rgba(16, 26, 18, .1);
+  padding-top: 9px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ms-calendar-legend i {
+  height: 9px;
+  width: 9px;
+  border-radius: 3px;
+  background: rgba(28, 96, 57, .3);
+}
+
+.ms-calendar-legend i[data-tone="low"] {
+  margin-left: 8px;
+  background: rgba(191, 128, 23, .38);
+}
+
+/* --- Horarios del dia ---------------------------------------------------- */
+
+.ms-slot-list {
+  margin-top: 12px;
+  border-top: 1px solid rgba(16, 26, 18, .1);
+  padding-top: 12px;
+}
+
+.ms-slot-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.ms-slot-grid {
+  display: grid;
+  max-height: 168px;
+  gap: 6px;
+  overflow-y: auto;
+}
+
+.ms-slot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 2px 10px;
+  border: 1px solid rgba(16, 26, 18, .12);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  padding: 9px 12px;
+  text-align: left;
+  transition: border-color .16s ease, background-color .16s ease;
+}
+
+.ms-slot:hover {
+  border-color: var(--green);
+  background: rgba(28, 96, 57, .08);
+}
+
+.ms-slot[data-selected] {
+  border-color: var(--ink);
+  background: var(--ink);
+}
+
+.ms-slot strong {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.ms-slot small {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  grid-column: 1;
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.ms-slot b {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  color: var(--green);
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.ms-slot[data-selected] strong { color: #fff; }
+.ms-slot[data-selected] small { color: rgba(255, 255, 255, .7); }
+.ms-slot[data-selected] b { color: var(--gold); }
+
+/* --- Menu desplegable ---------------------------------------------------- */
+
+.ms-menu-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgba(16, 26, 18, .1);
+  padding: 4px 10px 8px;
+  color: var(--muted);
+}
+
+.ms-menu-search input {
+  min-height: 32px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.ms-menu-search input:focus {
+  box-shadow: none;
+  outline: none;
+}
+
+.ms-menu-list {
+  display: grid;
+  max-height: min(320px, 52vh);
+  gap: 1px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.ms-menu-group p {
+  margin: 8px 0 3px;
+  padding: 0 12px;
+  color: var(--gold-2);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.ms-menu-group-trigger {
+  display: block;
+  width: 100%;
+  margin: 8px 0 3px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  background: none;
+  color: var(--gold-2);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-align: left;
+  text-transform: uppercase;
+  transition: background-color .14s ease, color .14s ease;
+}
+
+.ms-menu-group-trigger small {
+  color: var(--muted);
+  font-weight: 700;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.ms-menu-group-trigger:hover,
+.ms-menu-group-trigger[aria-selected="true"] {
+  background: rgba(28, 96, 57, .1);
+  color: var(--green);
+}
+
+.ms-menu-option {
+  display: flex;
+  min-height: 38px;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-radius: 8px;
+  padding: 6px 12px;
+  color: var(--ink-2);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: left;
+  transition: background-color .14s ease, color .14s ease;
+}
+
+.ms-menu-option span {
+  display: grid;
+  min-width: 0;
+}
+
+.ms-menu-option small {
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.ms-menu-option svg {
+  flex: none;
+  color: var(--green);
+}
+
+.ms-menu-option[data-active="true"] {
+  background: rgba(28, 96, 57, .1);
+  color: var(--ink);
+}
+
+.ms-menu-option[aria-selected="true"] {
+  color: var(--green);
+  font-weight: 700;
+}
+
+.ms-menu-empty {
+  margin: 0;
+  padding: 16px 12px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* --- Contador de personas ------------------------------------------------ */
+
+.ms-guest-field {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid rgba(255, 255, 255, .5);
+  border-radius: var(--r-sm);
+  background: rgba(255, 253, 247, .48);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8);
+  padding: 0 8px 0 14px;
+  transition: border-color .2s ease, box-shadow .24s ease, background-color .2s ease;
+}
+
+.ms-guest-field:focus-within {
+  border-color: var(--green);
+  background: var(--shell);
+  box-shadow: 0 0 0 3px rgba(28, 96, 57, .15);
+}
+
+.ms-guest-icon {
+  flex: none;
+  color: var(--green);
+}
+
+.ms-guest-field output {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  justify-content: center;
+  gap: 5px;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.ms-guest-field output small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ms-guest-field button {
+  display: grid;
+  height: 32px;
+  width: 32px;
+  flex: none;
+  place-items: center;
+  border: 1px solid rgba(16, 26, 18, .14);
+  border-radius: 50%;
+  background: var(--shell);
+  color: var(--ink);
+  transition: border-color .16s ease, background-color .16s ease, opacity .16s ease;
+}
+
+.ms-guest-field button:hover:not(:disabled) {
+  border-color: var(--green);
+  background: rgba(28, 96, 57, .12);
+}
+
+.ms-guest-field button:disabled {
+  opacity: .38;
+  cursor: default;
+}
+
+/* --- Barra de busqueda --------------------------------------------------- */
+
+.ms-searchbar {
+  display: grid;
+  grid-template-columns: 1.15fr .95fr .8fr 1.3fr auto;
+  align-items: end;
+  gap: 12px;
+  border: 1px solid rgba(255, 255, 255, .55);
+  border-radius: var(--r-lg);
+  background: rgba(255, 253, 247, .58);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8), var(--sh-2);
+  padding: 16px;
+}
+
+.ms-searchbar-field {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+}
+
+.ms-searchbar-label {
+  color: var(--ink-2);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.ms-searchbar-submit {
+  min-height: 48px;
+  padding: 0 22px;
+}
+
+.ms-search-input {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid rgba(255, 255, 255, .5);
+  border-radius: var(--r-sm);
+  background: rgba(255, 253, 247, .48);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8);
+  padding: 0 14px;
+  color: var(--green);
+  transition: border-color .2s ease, box-shadow .24s ease, background-color .2s ease;
+}
+
+.ms-search-input:focus-within {
+  border-color: var(--green);
+  background: var(--shell);
+  box-shadow: 0 0 0 3px rgba(28, 96, 57, .15);
+}
+
+.ms-search-input svg {
+  flex: none;
+}
+
+.ms-search-input input {
+  min-height: 0;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ms-search-input input:focus {
+  box-shadow: none;
+  outline: none;
+}
+
+.ms-search-input input::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+
+/* La barra sobre la foto de portada: mas ancha y con mas contraste. */
+/* Sobre la foto de portada el vidrio es lo que se ve: se deja pasar mas
+ * imagen y se sube el desenfoque para que el texto siga legible. */
+.ms-searchbar-hero {
+  width: min(100%, 1120px);
+  border-color: rgba(255, 255, 255, .5);
+  background: rgba(255, 253, 247, .76);
+  backdrop-filter: blur(30px) saturate(1.7);
+  -webkit-backdrop-filter: blur(30px) saturate(1.7);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .6),
+    0 28px 70px rgba(4, 13, 8, .34);
+  padding: 18px;
+}
+
+.ms-searchbar.is-compact {
+  box-shadow: var(--sh-1);
+}
+
+@media (max-width: 1080px) {
+  .ms-searchbar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ms-searchbar-submit {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .ms-searchbar {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+
+  .ms-popover-calendar {
+    width: min(320px, calc(100vw - 28px));
+  }
+}
+
+/* --- Orden de apilado de los contenedores con popover -------------------- */
+
+/*
+ * `backdrop-filter` crea un contexto de apilado propio. Al volver de vidrio la
+ * barra de busqueda y los paneles de reserva, el `z-index` del calendario y del
+ * menu paso a resolverse *dentro* de ese contexto, y las tarjetas del catalogo
+ * -que vienen despues en el DOM- terminaban pintandose encima del panel
+ * flotante. Subir el contexto entero lo resuelve.
+ */
+.ms-searchbar,
+.ms-booking-form,
+.ms-reserve-widget {
+  position: relative;
+  z-index: 20;
+}

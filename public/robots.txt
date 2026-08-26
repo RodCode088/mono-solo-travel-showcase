@@ -1,0 +1,12 @@
+# Mono Solo Travel - robots
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /usuario
+Disallow: /b2b
+Disallow: /reservar
+Disallow: /checkout
+Disallow: /confirmacion
+
+Sitemap: https://monosolotravel.com/sitemap.xml
