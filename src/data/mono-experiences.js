@@ -167,8 +167,8 @@ const catalogGroupsByDestination = [
     categories: [["Playa Venao & Los Santos Province", [14, 45]]],
   },
   {
-    // Kuna Yala es un filtro especifico de destino, no una segunda copia de la
-    // categoria generica Beach & Water. Debe devolver solo sus propias actividades.
+    // Kuna Yala is a destination-specific filter, not a second copy of the
+    // generic Beach & Water category. It must return only its own activities.
     destination: "Kuna Yala / San Blas",
     categories: [["Kuna Yala / San Blas", [26, 27]]],
   },
@@ -199,6 +199,7 @@ const primaryCatalogByOrder = {
   22: ["Panama City", "Cultural Experiences"],
   23: ["Panama City", "Extreme Experiences"],
   24: ["Panama City", "Nightlife"],
+  25: [COLON_DESTINATION, COLON_CATEGORY],
   26: ["Kuna Yala / San Blas", "Kuna Yala / San Blas"],
   27: ["Kuna Yala / San Blas", "Kuna Yala / San Blas"],
   28: ["Shuttles", "Shuttles & Logistics"],
@@ -245,6 +246,7 @@ const spanishTitlesByOrder = {
   20: "Lost & Found Hostel a Boquete",
   21: "Lost & Found Hostel a Isla Colon, Bocas del Toro",
   22: "Haz tu propio chocolate en Casa Coronel",
+  25: "Pesca submarina primitiva: captura tu cena",
   26: "Kuna Yala Castaway: noche y mas alla",
   27: "Kuna Yala en un dia",
   28: "Santa Catalina a Boquete",
@@ -350,10 +352,9 @@ for (const [path, url] of Object.entries(mediaFiles)) {
   mediaByFolder.get(folder).push({ path, url });
 }
 
-// Orden de galeria pedido por el cliente: fragmentos de nombre de archivo
-// listados primero, en el orden dado. Lo que no esta listado conserva su
-// posicion relativa al final, asi que esto reordena sin agregar, quitar ni
-// reemplazar ninguna imagen.
+// Client-requested gallery ordering: file-name fragments listed first, in the
+// given order. Anything not listed keeps its relative position at the end, so
+// this reorders without adding, removing or replacing an image.
 function imageRank(path, fragments) {
   const name = fileNameFor(path);
   const index = fragments.findIndex((fragment) => name.includes(fragment));
@@ -544,8 +545,8 @@ function highlightsFrom(description) {
   return (preferred.length ? preferred : lines).slice(0, 5);
 }
 
-// Los titulos que dio el cliente estan marcados VERBATIM en el change request,
-// asi que se usan tal cual en ambos idiomas en vez de retraducirse al espanol.
+// Client-supplied titles are marked VERBATIM in the change request, so they are
+// used as-is in both languages rather than being re-translated into Spanish.
 function spanishTitleFor(order, fallback) {
   return clientContentByOrder[order]?.title
     || spanishTitlesByOrder[order]
@@ -661,8 +662,8 @@ function spanishHighlightsFor(category) {
   ];
 }
 
-// Equivalentes en ingles del fallback honesto de arriba, usados solo cuando la
-// carpeta origen no tiene descripcion original de Cuanto en ningun idioma.
+// English equivalents of the honest fallback above, used only when the source
+// folder has no original Cuanto description in either language.
 function englishShortDescriptionFallback(title, destination, category, duration) {
   if (/shuttle/i.test(category)) {
     return `Shared shuttle route for ${title.toLowerCase()}, with local coordination, limited seats and a confirmed departure before travel.`;
@@ -855,8 +856,12 @@ function buildExperience(path, text) {
 
 /**
  * Overlays the client-supplied replacement content onto a parsed experience.
- * The client wrote one English block per experience, marked VERBATIM, so the
- * same copy is used for both languages instead of being re-translated.
+ * The client wrote one English block per experience, marked VERBATIM, so that
+ * exact text stays the English translation untouched. An optional `spanish`
+ * block (same shape, added 2026-08-25 to fix descriptions not translating)
+ * supplies the real Spanish translation; without one, both languages fall
+ * back to the English text exactly like before (e.g. entries that only
+ * override `title`).
  */
 function applyClientContent(experience, order) {
   const content = clientContentByOrder[order];
@@ -864,31 +869,50 @@ function applyClientContent(experience, order) {
   if (price !== undefined) experience.basePrice = price;
   if (!content) return experience;
 
+  const spanish = content.spanish || null;
+
   if (content.duration) experience.duration = content.duration;
   if (content.included) experience.included = cleanDisplayList(content.included);
   if (content.notIncluded) experience.notIncluded = cleanDisplayList(content.notIncluded);
   if (content.requirements) experience.requirements = cleanDisplayList(content.requirements);
 
-  const itinerary = content.itinerary ? cleanDisplayList(content.itinerary) : null;
+  const englishItinerary = content.itinerary ? cleanDisplayList(content.itinerary) : null;
+  const spanishItinerary = spanish?.itinerary ? cleanDisplayList(spanish.itinerary) : null;
+  const itinerary = spanishItinerary || englishItinerary;
   if (itinerary) experience.itinerary = itinerary;
 
-  if (content.fullDescription) {
-    experience.fullDescription = content.fullDescription;
-    experience.descriptionSections = paragraphsFrom(content.fullDescription);
-    experience.shortDescription = content.shortDescription
-      || truncateSentence(paragraphsFrom(content.fullDescription)[0] || content.fullDescription);
-  } else if (content.shortDescription) {
-    experience.shortDescription = content.shortDescription;
+  const englishFullDescription = content.fullDescription || null;
+  const englishShortDescription = content.shortDescription
+    || (englishFullDescription ? truncateSentence(paragraphsFrom(englishFullDescription)[0] || englishFullDescription) : null);
+  const spanishFullDescription = spanish?.fullDescription || null;
+  const spanishShortDescription = spanish?.shortDescription
+    || (spanishFullDescription ? truncateSentence(paragraphsFrom(spanishFullDescription)[0] || spanishFullDescription) : null);
+  const fullDescription = spanishFullDescription || englishFullDescription;
+  const shortDescription = spanishShortDescription || englishShortDescription;
+
+  if (fullDescription) {
+    experience.fullDescription = fullDescription;
+    experience.descriptionSections = paragraphsFrom(fullDescription);
+    experience.shortDescription = shortDescription || fullDescription;
+  } else if (shortDescription) {
+    experience.shortDescription = shortDescription;
   }
 
-  for (const language of ["es", "en"]) {
-    const translation = experience.translations[language];
-    if (content.title) translation.title = content.title;
-    if (content.fullDescription) {
-      translation.fullDescription = experience.fullDescription;
-      translation.shortDescription = experience.shortDescription;
-    }
-    if (itinerary) translation.itinerary = itinerary;
+  const esTranslation = experience.translations.es;
+  const enTranslation = experience.translations.en;
+  if (content.title) {
+    esTranslation.title = spanish?.title || content.title;
+    enTranslation.title = content.title;
+  }
+  if (englishFullDescription) {
+    esTranslation.fullDescription = spanishFullDescription || englishFullDescription;
+    esTranslation.shortDescription = spanishShortDescription || englishShortDescription;
+    enTranslation.fullDescription = englishFullDescription;
+    enTranslation.shortDescription = englishShortDescription;
+  }
+  if (englishItinerary) {
+    esTranslation.itinerary = spanishItinerary || englishItinerary;
+    enTranslation.itinerary = englishItinerary;
   }
 
   return experience;
@@ -947,8 +971,8 @@ function buildAuthoredExperience(entry) {
     requirements: cleanDisplayList(entry.requirements),
     cancellationPolicy: "Reserva sujeta a cupo y confirmacion operativa. Cambios o cancelaciones se coordinan por WhatsApp segun politica del operador.",
     itinerary: translation.itinerary,
-    // BLOQUEADO (B3): el cliente todavia no dio un precio, asi que no se
-    // presenta nada como si fuera dato comercial final.
+    // BLOCKED (B3): the client has not supplied a price yet, so nothing is
+    // presented as if it were final commercial data.
     basePrice: 0,
     currency: "USD",
     rating: null,

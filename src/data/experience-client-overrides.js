@@ -16,11 +16,14 @@
 // "e-XXX".
 
 /** Ordenes eliminados por completo del catalogo (el cliente quito el producto). */
-export const removedOrders = new Set([25]); // Primitive Spearfishing fue eliminado por el cliente.
+export const removedOrders = new Set([]);
 // El 24 (Bar Hopping) estaba antes aca porque no tenia detalles aprobados. El
 // cliente lo desbloqueo el 2026-08-18 ("crea una experiencia que se llame 'bar
 // hoping'", "usa ai pa crear una descripcion - bar hopping en Casco Antiguo"),
 // asi que ahora vive en authoredExperiences mas abajo con copy escrito por IA.
+// El 25 (Primitive Spearfishing: Catch Your Dinner) tambien estaba aca
+// ("el cliente la elimino", migracion 014) pero el owner pidio traerla de
+// vuelta el 2026-08-25, ahora bajo Colon & Sister Moon (ver colonOrders).
 
 /**
  * Ordenes que son productos de Colon y no deben aparecer bajo "From Panama
@@ -32,7 +35,11 @@ export const removedOrders = new Set([25]); // Primitive Spearfishing fue elimin
  */
 export const COLON_DESTINATION = "Colón";
 export const COLON_CATEGORY = "Colón & Sister Moon Experiences";
-export const colonOrders = new Set([10, 19, 29, 35, 37]);
+// 25 (Primitive Spearfishing) restaurada aqui 2026-08-25 a pedido del owner
+// ("necesitamos de vuelta la experiencia de pesca... en las experiencias de
+// colon y sister moon") -- coincide con su categoria original en Cuanto
+// ("📍Colón & Sister Moon Experiences", ver el .txt fuente de la carpeta 25).
+export const colonOrders = new Set([10, 19, 25, 29, 35, 37]);
 
 /** Precio temporal puesto por el cliente; lo va a revisar despues. */
 export const priceOverridesByOrder = {
@@ -63,25 +70,28 @@ export const clientContentByOrder = {
     fullDescription:
       "Trade the city skyscraper views for Caribbean salt air. We're taking you on an overland journey to Colón for historical pirate territory, specialty coffee, and a day relaxing at our favorite island hideaway.",
     duration: 9, // "Full Day (~8 to 9 Hours)"
+    // Incluye/no incluye/requisitos van en espanol (con su traduccion en
+    // experience-content.js) siguiendo el mismo patron que el resto del
+    // catalogo -- ver nota en applyClientContent().
     notIncluded: [
-      "Personal snacks/drinks outside lunch",
-      "alcohol",
-      "optional snorkel gear rental ($5 upgrade)",
+      "Snacks o bebidas personales fuera del almuerzo",
+      "Alcohol",
+      "Alquiler opcional de equipo de snorkel (upgrade de $5)",
     ],
     included: [
-      "Roundtrip overland & boat transport",
-      "history/coffee stop",
-      "full access to Sister Moon Hotel facilities (saltwater pool, meditation space, oceanfront decks, private clean showers/restrooms)",
-      "and a freshly cooked meal LUNCH by a local chef",
+      "Transporte terrestre y en lancha, ida y vuelta",
+      "Parada de historia y café",
+      "Acceso completo a las instalaciones de Sister Moon Hotel (piscina de agua salada, espacio de meditación, terrazas frente al mar, duchas y baños privados)",
+      "Un almuerzo recién cocinado por un chef local",
     ],
     requirements: [
-      "Swimwear",
-      "towel",
-      "change of dry clothes",
-      "sunscreen",
-      "bug spray",
-      "cash for extra drinks/souvenirs",
-      "and your camera",
+      "Traje de baño",
+      "Toalla",
+      "Cambio de ropa seca",
+      "Protector solar",
+      "Repelente de insectos",
+      "Efectivo para bebidas extra o souvenirs",
+      "Tu cámara",
     ],
     itinerary: [
       "Early Pickup in Panama City: Jump in the rig for a scenic 1.5-hour drive through tropical landscapes heading north to Colón.",
@@ -91,6 +101,22 @@ export const clientContentByOrder = {
       "Explore or Unwind: Hike up to the island's historic lighthouse for panoramic views and parrot watching, or just catch a tan by the water.",
       "3:00 PM Boat & Drive Back: We jump back on the boat and head back overland, landing you in Panama City right in time for sunset.",
     ],
+    // Traduccion al espanol (2026-08-25, no es del cliente): el bloque de
+    // arriba es el ingles VERBATIM del cliente y se queda intacto. Esto
+    // arregla que la version en espanol del sitio mostrara la descripcion en
+    // ingles sin traducir.
+    spanish: {
+      fullDescription:
+        "Cambia los rascacielos de la ciudad por aire salado del Caribe. Te llevamos en un viaje por tierra hasta Colón, territorio pirata con historia, café de especialidad y un día de relax en nuestro escondite isleño favorito.",
+      itinerary: [
+        "Recogida temprano en Ciudad de Panamá: sube a la camioneta para un recorrido escénico de 1.5 horas por paisajes tropicales rumbo al norte, hacia Colón.",
+        "Historia pirata y parada de café (Portobelo): parada rápida en el histórico Portobelo, antiguo bastión del oro español y patio de juegos favorito de piratas como Henry Morgan. Comemos algo local (empanadas/tarta de plátano) y tomamos café de especialidad panameño.",
+        "Cruce en lancha desde La Guaira: un viaje rápido de 5 minutos en lancha por aguas turquesa nos deja directo en Isla Grande.",
+        "Base en Sister Moon y relax isleño: te instalas en Sister Moon Hotel, nuestro santuario privado por el día. Métete a la piscina de agua salada, pasa por el espacio de meditación, usa las duchas limpias y disfruta un almuerzo impecable cocinado por un chef local.",
+        "Explora o desconecta: sube hasta el faro histórico de la isla para vistas panorámicas y avistamiento de loros, o simplemente broncéate junto al agua.",
+        "3:00 PM lancha y regreso: volvemos a subir a la lancha y regresamos por tierra, llegando a Ciudad de Panamá justo a tiempo para el atardecer.",
+      ],
+    },
   },
 
   // 4.1 "FREE" Casco Walking Tour - RENAME + REPLACE DESCRIPTION
@@ -104,24 +130,40 @@ export const clientContentByOrder = {
     ].join("\n\n"),
     duration: 3, // "~3 Hours (Walking Tour + Optional Social Lunch)"
     notIncluded: [
-      "Guide tip (tip-based model—pay what you feel it was worth at the end)",
+      "Propina del guía (modelo a propina: pagas al final lo que sientas que valió la experiencia)",
     ],
     included: [
-      "Direct hostel pickup",
-      "guided walking route",
-      "and skyline viewpoints",
+      "Recogida directa en tu hostel",
+      "Ruta guiada a pie",
+      "Miradores con vista al skyline",
     ],
     requirements: [
-      "Comfortable walking shoes for cobblestones",
-      "cash for guide tips/lunch",
-      "water",
-      "and a hat or sunglasses",
+      "Zapatos cómodos para caminar sobre empedrado",
+      "Efectivo para la propina del guía o el almuerzo",
+      "Agua",
+      "Gorra o lentes de sol",
     ],
     itinerary: [
       "9:30 AM – Direct Pickup: We pick you up right from your accommodation—no need to figure out public transport or maps.",
       "Casco Viejo Exploration: Dive into the backstreets, colonial ruins, iconic plazas, and local contrast of Casco. Get the best skyline photo ops and deep-cut history from our crew.",
       "12:00 PM – Social Daily Lunch Transition (Optional): We keep the crew together and head over to the Via Argentina area for a massive, traditional Panamanian meal.",
     ],
+    // Traduccion al espanol (2026-08-25, no es del cliente): el bloque de
+    // arriba (fullDescription/itinerary) es el ingles VERBATIM del cliente y
+    // se queda intacto como traduccion EN.
+    spanish: {
+      fullDescription: [
+        "La forma más auténtica de vivir el corazón de Panamá: nada de clases de historia aburridas ni trampas para turistas. Solo buena energía, callejones empedrados, rincones escondidos y las historias reales detrás de Casco Viejo.",
+        "Cuándo: ¡Todos los días de la semana!\nHora de recogida: 9:30 AM – 9:45 AM (directo desde tu hostel/hotel)",
+        "Desglose de precio y logística\nPara unirte ($5.00 en total): $2.00 de reserva + $3.00 de transporte obligatorio de recogida.\nAlmuerzo social opcional ($12.00): incluye tu transporte en Metro, una comida tradicional completa (estilo fonda) y un café de especialidad en Vía Argentina.",
+        "¿Por qué basado en propinas? Así mantenemos a nuestros guías motivados, la energía alta, y a ti con total libertad de valorar la experiencia según cómo te sintió.",
+      ].join("\n\n"),
+      itinerary: [
+        "9:30 AM – Recogida directa: te recogemos directo en tu alojamiento, sin que tengas que pensar en transporte público ni mapas.",
+        "Exploración de Casco Viejo: métete en los callejones, las ruinas coloniales, las plazas icónicas y el contraste local del Casco. Las mejores fotos del skyline y la historia de verdad, contada por nuestro equipo.",
+        "12:00 PM – Almuerzo social (opcional): mantenemos al grupo unido y nos vamos hacia la zona de Vía Argentina para una comida panameña tradicional y abundante.",
+      ],
+    },
   },
 
   // 1.7 Kuna Yala / San Blas Overnight & Beyond - RENAME (VERBATIM)
@@ -157,26 +199,28 @@ export const authoredExperiences = [
       "Good to Know: Weekend availability only. Bring your squad—groups unlock discounted rates!",
     ].join("\n\n"),
     duration: 5, // "~4 to 5 Hours"
+    // Incluye/no incluye/requisitos en espanol (con su traduccion en
+    // experience-content.js), mismo patron que Bar Hopping abajo.
     notIncluded: [
-      "Personal drinks/meals at the beach",
-      "extra ammo rounds outside your selected package",
+      "Bebidas o comidas personales en la playa",
+      "Cartuchos extra fuera del paquete seleccionado",
     ],
     included: [
-      "Roundtrip overland transport",
-      "shooting range entry fee",
-      "safety gear (ear/eye protection)",
-      "certified instructor",
-      "firearms",
-      "target paper",
-      "standard ammo package",
-      "and transport to Veracruz Beach for sunset",
+      "Transporte terrestre ida y vuelta",
+      "Entrada al polígono de tiro",
+      "Equipo de seguridad (protección auditiva y ocular)",
+      "Instructor certificado",
+      "Armas de fuego",
+      "Blancos de papel",
+      "Paquete estándar de munición",
+      "Transporte a Playa Veracruz para el atardecer",
     ],
     requirements: [
-      "Valid physical ID or passport (mandatory for range entry)",
-      "closed-toe shoes (mandatory)",
-      "comfortable clothes",
-      "sunglasses",
-      "and cash/card for beach drinks or snacks",
+      "Documento de identidad o pasaporte físico vigente (obligatorio para entrar al polígono)",
+      "Zapatos cerrados (obligatorio)",
+      "Ropa cómoda",
+      "Lentes de sol",
+      "Efectivo o tarjeta para bebidas o snacks en la playa",
     ],
     itinerary: [
       "Pickup in Panama City: We pick you up in our rig and cross over the Canal entrance, heading towards the iconic Bridge of the Americas.",
@@ -185,6 +229,24 @@ export const authoredExperiences = [
       "Veracruz Beach Sunset Chill: Unwind after the range rush, grab a drink or meal by the ocean, and watch the sun dip below the horizon over the Pacific.",
       "Return Transfer: Hop back in the vehicle for a quick drop-off back in Panama City.",
     ],
+    // Traduccion al espanol (2026-08-25): esta experiencia no tenia bloque
+    // `spanish` -- buildAuthoredExperience() ya lo soporta (ver Bar Hopping
+    // mas abajo), solo faltaba escribirlo.
+    spanish: {
+      shortDescription:
+        "Pon a prueba tu puntería a la sombra del icónico Puente de las Américas, y luego relájate en Playa Veracruz para ver el atardecer.",
+      fullDescription: [
+        "Pon a prueba tu puntería a la sombra del icónico Puente de las Américas. Después de gastar cartuchos en el polígono, bajamos el ritmo con un recorrido escénico de 20 minutos hasta Playa Veracruz para ver el atardecer con una bebida fría en mano. Precisión a toda máquina que termina en relax de playa.",
+        "Bueno saber: disponible solo los fines de semana. Trae a tu grupo: en grupo desbloqueas tarifas con descuento.",
+      ].join("\n\n"),
+      itinerary: [
+        "Recogida en Ciudad de Panamá: te recogemos en nuestra camioneta y cruzamos la entrada del Canal, rumbo al icónico Puente de las Américas.",
+        "Charla de seguridad y sesión de tiro: llegamos al polígono bajo el puente. Te equipas con el material de seguridad, repasamos las reglas del lugar con instructores certificados, y cargas para tu sesión de tiro al blanco.",
+        "Recorrido costero escénico a Veracruz: guardamos el equipo y tomamos un recorrido costero rápido de 20 minutos hasta Playa Veracruz.",
+        "Atardecer relax en Playa Veracruz: te desconectas después de la adrenalina del polígono, pides una bebida o algo de comer frente al mar, y ves el sol meterse en el horizonte del Pacífico.",
+        "Traslado de regreso: te subes de nuevo al vehículo para el regreso rápido a Ciudad de Panamá.",
+      ],
+    },
   },
   {
     // 4.1 Bar Hopping - EXPERIENCIA NUEVA (Nightlife).

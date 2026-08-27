@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "../../../components/ui/Button.jsx";
 import { ExperienceLoader } from "../../../components/ui/ExperienceLoader.jsx";
 import { StateBlock } from "../../../components/ui/StateBlock.jsx";
@@ -45,6 +45,15 @@ export function AdminExperiencesPage({ create = false }) {
   const [notice, setNotice] = useState(null);
   const [editing, setEditing] = useState(create ? { ...EMPTY_FORM } : null);
   const [busy, setBusy] = useState(false);
+  const editorRef = useRef(null);
+
+  // El formulario se renderiza arriba de la lista, pero al hacer click en
+  // "Editar" en una fila mas abajo el scroll se queda ahi -- el owner
+  // reporto que el editor "se abre pero la visual se queda abajo" (2026-08-25).
+  // Lo llevamos a la vista apenas aparece.
+  useEffect(() => {
+    if (editing) editorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [editing]);
 
   async function load() {
     setError(null);
@@ -167,7 +176,9 @@ export function AdminExperiencesPage({ create = false }) {
       {error ? <div className="mt-4"><StateBlock tone="error" title={t("No se pudo completar")} text={error} /></div> : null}
 
       {editing ? (
-        <ExperienceForm editing={editing} busy={busy} onSubmit={handleSubmit} onCancel={() => setEditing(null)} />
+        <div ref={editorRef}>
+          <ExperienceForm editing={editing} busy={busy} onSubmit={handleSubmit} onCancel={() => setEditing(null)} />
+        </div>
       ) : null}
 
       {rows === null ? (

@@ -385,7 +385,7 @@ export const spanishTranslationsByOrder = {
     shortDescription:
       "Pesca submarina primitiva con arpon hawaiano y expertos locales en apnea: lo que caces se convierte en tu cena.",
     fullDescription:
-      "Aprende el arte ancestral de la caza submarina con expertos locales en apnea, usando arpones hawaianos tradicionales. Sin tanques, sin ruido, solo tu, un arpon y el oceano abierto. Lo mejor: lo que logres cazar va directo a la cocina del hotel para tu cena fresca.",
+      "Aprende el antiguo arte de la caza submarina con expertos locales en apnea, utilizando arpones hawaianos tradicionales. Sin tanques, sin ruido: solo tú, un arpón y el océano abierto. ¿Lo mejor? Todo lo que logres pescar irá directamente a la cocina del hotel para tu cena fresca.",
     itinerary: [
       "Apnea guiada por pescadores locales expertos",
       "Uso de arpon hawaiano tradicional, sin tanques de oxigeno",

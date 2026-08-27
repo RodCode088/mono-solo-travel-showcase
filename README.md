@@ -2,13 +2,13 @@
 
 Un marketplace turístico real, en producción, para un operador de solo-travel en Panamá — los viajeros exploran y reservan experiencias de varios días o de un día sin crear cuenta, y el operador maneja toda la trastienda (contenido, inventario, reservas, aprobación de pagos) desde un panel admin dentro de la propia app, sin tocar código.
 
-**App en vivo:** https://mono-solo-travel.pages.dev/
+**App en vivo:** https://monosolotravel.com
 
 > Esta es una copia curada del código de producción, publicada con fines de portfolio. Se excluyeron documentos internos del cliente (contratos, precios, material multimedia crudo, notas de planificación diaria) — todo lo que hay aquí es código fuente o los documentos de arquitectura/decisiones detrás de él. El historial completo vive en un repositorio privado ligado a un cliente real.
 
 ## Qué hace
 
-- **Catálogo público** de experiencias turísticas en toda Panamá, filtrable por provincia/categoría, bilingüe (ES/EN).
+- **Catálogo público** de experiencias turísticas en toda Panamá, filtrable por provincia/categoría, bilingüe (ES/EN). Hoy sirve 45 experiencias activas en 5 provincias; abre en inglés por defecto, porque la mayoría del tráfico son mochileros internacionales.
 - **Checkout de invitado sin login obligatorio** — cualquier visitante puede reservar, recibir una confirmación ligada a un token público, y consultar su estado después sin necesidad de cuenta.
 - **Panel admin** para el operador: aprobar/rechazar reservas y pagos, y editar el contenido de las experiencias (descripciones, fotos, categoría, provincia, slots destacados) directamente desde la interfaz — sin necesidad de un desarrollador para cambios de contenido del día a día.
 - **Programa de referidos con hostales**: códigos QR imprimibles por hostal socio que enlazan a una vista pre-filtrada del catálogo, para poder rastrear el tráfico por fuente de referido.
@@ -26,7 +26,7 @@ Un marketplace turístico real, en producción, para un operador de solo-travel 
 ## Puntos de arquitectura
 
 - **Row Level Security como frontera real de seguridad.** Se asume que la clave pública/anon de Supabase queda expuesta en el navegador — la autorización se aplica en las políticas RLS de Postgres y en RPCs controladas (`create_guest_booking`, `get_public_booking_confirmation`, `approve_booking_payment`, `reject_booking_payment`), no ocultando botones en la interfaz. Ver [`docs/architecture/ACCESS_CONTROL.md`](docs/architecture/ACCESS_CONTROL.md).
-- **Modelo de dominio explícito** para experiencias, disponibilidad, reservas y pagos, mantenido con 26+ migraciones SQL incrementales en [`supabase/migrations/`](supabase/migrations) en lugar de un volcado de schema monolítico — ver [`docs/architecture/DOMAIN_MODEL.md`](docs/architecture/DOMAIN_MODEL.md).
+- **Modelo de dominio explícito** para experiencias, disponibilidad, reservas y pagos, mantenido con 27 migraciones SQL incrementales en [`supabase/migrations/`](supabase/migrations) en lugar de un volcado de schema monolítico — ver [`docs/architecture/DOMAIN_MODEL.md`](docs/architecture/DOMAIN_MODEL.md).
 - **Resolución de configuración con fallback mock-first**: la app puede correr completamente offline contra datos mock, luego incorporar una configuración local, luego variables de entorno — así todo el flujo de reserva se puede demostrar sin ninguna credencial de backend.
 - **Decisiones documentadas, no solo código.** Las elecciones de stack (Supabase vs. un backend propio vs. Firebase, Cloudflare Pages vs. Vercel) están escritas con el análisis de tradeoffs que realmente se hizo — ver [`docs/decisions/ADR-001-SUPABASE-CLOUDFLARE.md`](docs/decisions/ADR-001-SUPABASE-CLOUDFLARE.md).
 - **QA integrado en `npm run check`**: un paso de lint de JS, una verificación de resolución de imports, y un escaneo de secretos antes de que cualquier cambio salga (`scripts/qa/`).
