@@ -6,8 +6,12 @@ export const routeInventory = [
   { path: "/vlog", legacyView: "-", react: "VlogPage", access: "public", priority: "real" },
   { path: "/destinos", legacyView: "destinationsPage", react: "DestinationsPage", access: "public", priority: "real" },
   { path: "/destinos/:slug", legacyView: "destinationsPage(slug)", react: "DestinationDetailPage", access: "public", priority: "real" },
-  { path: "/reservar/:experienceId", legacyView: "bookingPage", react: "BookingSelectionPage", access: "public", priority: "real" },
-  { path: "/checkout", legacyView: "checkoutPage", react: "CheckoutPage", access: "public", priority: "real" },
+  // Ambas viven detras de <RequireCustomer> en AppRouter desde 51ed3f6
+  // ("require login for booking flow"): sin sesion redirigen a /login. La RPC
+  // que se llama al final sigue siendo create_guest_booking, pero el flujo ya
+  // no es accesible sin cuenta. /confirmacion si sigue publica (por token).
+  { path: "/reservar/:experienceId", legacyView: "bookingPage", react: "BookingSelectionPage", access: "customer", priority: "real" },
+  { path: "/checkout", legacyView: "checkoutPage", react: "CheckoutPage", access: "customer", priority: "real" },
   { path: "/confirmacion", legacyView: "confirmationPage", react: "ConfirmationPage", access: "public", priority: "real" },
   { path: "/legal/terminos", legacyView: "legalPage(terminos)", react: "LegalPage(terminos)", access: "public", priority: "real" },
   { path: "/legal/privacidad", legacyView: "legalPage(privacidad)", react: "LegalPage(privacidad)", access: "public", priority: "real" },

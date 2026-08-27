@@ -1,6 +1,6 @@
 # Mono Solo Travel
 
-Un marketplace turístico real, en producción, para un operador de solo-travel en Panamá — los viajeros exploran y reservan experiencias de varios días o de un día sin crear cuenta, y el operador maneja toda la trastienda (contenido, inventario, reservas, aprobación de pagos) desde un panel admin dentro de la propia app, sin tocar código.
+Un marketplace turístico real, en producción, para un operador de solo-travel en Panamá — los viajeros exploran y reservan experiencias de varios días o de un día, y el operador maneja toda la trastienda (contenido, inventario, reservas, aprobación de pagos) desde un panel admin dentro de la propia app, sin tocar código.
 
 **App en vivo:** https://monosolotravel.com
 
@@ -9,7 +9,7 @@ Un marketplace turístico real, en producción, para un operador de solo-travel 
 ## Qué hace
 
 - **Catálogo público** de experiencias turísticas en toda Panamá, filtrable por provincia/categoría, bilingüe (ES/EN). Hoy sirve 45 experiencias activas en 5 provincias; abre en inglés por defecto, porque la mayoría del tráfico son mochileros internacionales.
-- **Checkout de invitado sin login obligatorio** — cualquier visitante puede reservar, recibir una confirmación ligada a un token público, y consultar su estado después sin necesidad de cuenta.
+- **Reserva con cuenta, consulta sin cuenta.** El flujo `/reservar` → `/checkout` exige sesión (guard `RequireCustomer`); sin ella redirige a `/login`. La confirmación, en cambio, es pública: se resuelve por un token en la URL, así que el viajero consulta el estado de su reserva desde cualquier dispositivo sin volver a autenticarse.
 - **Panel admin** para el operador: aprobar/rechazar reservas y pagos, y editar el contenido de las experiencias (descripciones, fotos, categoría, provincia, slots destacados) directamente desde la interfaz — sin necesidad de un desarrollador para cambios de contenido del día a día.
 - **Programa de referidos con hostales**: códigos QR imprimibles por hostal socio que enlazan a una vista pre-filtrada del catálogo, para poder rastrear el tráfico por fuente de referido.
 - **Notificaciones transaccionales** (reserva recibida, alertas al admin) despachadas de forma asíncrona mediante una tabla outbox + una Edge Function de Supabase, en lugar de disparar emails directo desde triggers de base de datos.
@@ -63,7 +63,7 @@ Con gusto explico a detalle cualquier parte de esto — las políticas RLS, el f
     components/ui/
     features/
       admin/                 # trastienda: reservas, pagos, edición de contenido
-      booking/                # flujo de reserva de invitado
+      booking/                # flujo de reserva (selección, checkout, confirmación)
       catalog/                # catálogo público + detalle de experiencia
     routes/
   scripts/
