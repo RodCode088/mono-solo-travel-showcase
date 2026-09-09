@@ -1,6 +1,6 @@
 # Mono Solo Travel
 
-Un marketplace turístico real, en producción, para un operador de solo-travel en Panamá — los viajeros exploran y reservan experiencias de varios días o de un día, y el operador maneja toda la trastienda (contenido, inventario, reservas, aprobación de pagos) desde un panel admin dentro de la propia app, sin tocar código.
+Un marketplace turístico real, en producción, para un guía de tours en Panamá — los viajeros exploran y reservan experiencias de varios días o de un día, y el operador maneja toda la trastienda (contenido, inventario, reservas, aprobación de pagos) desde un panel admin dentro de la propia app, sin tocar código.
 
 **App en vivo:** https://monosolotravel.com
 
